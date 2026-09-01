@@ -203,134 +203,68 @@ export const SITE_CONTENT: SiteContent = {
     ]
   },
 
-//   portfolio: {
-//     eyebrow: "Our fleet",
-//     heading: "Equipment available now",
-//     subhead: "A sample of machines currently in the fleet. Filter by category, or get in touch to check availability for a specific job date.",
-//     filters: ["All", "Excavators", "Cranes", "Generators", "Loaders"],
-//     projects: [
-//       {
-//         id: "proj-01",
-//         title: "20-Tonne Excavator",
-//         category: "Excavators",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Standard-reach excavator suited to foundation digging and general earthworks.",
-//         image: "assets/images/project-01.jpg"
-//       },
-//       {
-//         id: "proj-02",
-//         title: "Mobile Crane — 25T",
-//         category: "Cranes",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Mobile crane for structural steel, precast, and marine lifting jobs.",
-//         image: "assets/images/project-02.jpg"
-//       },
-//       {
-//         id: "proj-03",
-//         title: "Prime Power Generator — 150kVA",
-//         category: "Generators",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Diesel generator suited to full-site prime power on longer leases.",
-//         image: "assets/images/project-03.jpg"
-//       },
-//       {
-//         id: "proj-04",
-//         title: "Mini Excavator — 3T",
-//         category: "Excavators",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Compact excavator for tight-access sites and smaller trenching jobs.",
-//         image: "assets/images/project-04.jpg"
-//       },
-//       {
-//         id: "proj-05",
-//         title: "Wheel Loader — 3m³",
-//         category: "Loaders",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Wheel loader for material handling, stockpiling, and site clearing.",
-//         image: "assets/images/project-05.jpg"
-//       },
-//       {
-//         id: "proj-06",
-//         title: "Backup Generator — 60kVA",
-//         category: "Generators",
-//         location: "Effurun yard",
-//         year: "Available",
-//         summary: "Smaller backup unit suited to site offices and short-term power gaps.",
-//         image: "assets/images/project-06.jpg"
-//       }
-//     ]
-//   },
-  // src/data/content.ts
-portfolio: {
-  eyebrow: "Our fleet",
-  heading: "Equipment available now",
-  subhead: "A sample of machines currently in the fleet. Filter by category, or get in touch to check availability for a specific job date.",
-  filters: ["All", "Excavators", "Cranes", "Generators", "Loaders"],
-  projects: [
-    {
-      id: "proj-01",
-      title: "20-Tonne Excavator",
-      category: "Excavators",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Standard-reach excavator suited to foundation digging and general earthworks.",
-      image: "/images/project-01.jpg"
-    },
-    {
-      id: "proj-02",
-      title: "Mobile Crane — 25T",
-      category: "Cranes",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Mobile crane for structural steel, precast, and marine lifting jobs.",
-      image: "/images/project-02.jpg"
-    },
-    {
-      id: "proj-03",
-      title: "Prime Power Generator — 150kVA",
-      category: "Generators",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Diesel generator suited to full-site prime power on longer leases.",
-      image: "/images/project-03.jpg"
-    },
-    {
-      id: "proj-04",
-      title: "Mini Excavator — 3T",
-      category: "Excavators",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Compact excavator for tight-access sites and smaller trenching jobs.",
-      image: "/images/project-04.jpg"
-    },
-    {
-      id: "proj-05",
-      title: "Wheel Loader — 3m³",
-      category: "Loaders",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Wheel loader for material handling, stockpiling, and site clearing.",
-      image: "/images/project-05.jpg"
-    },
-    {
-      id: "proj-06",
-      title: "Backup Generator — 60kVA",
-      category: "Generators",
-      location: "Effurun yard",
-      year: "Available",
-      summary: "Smaller backup unit suited to site offices and short-term power gaps.",
-      image: "/images/project-06.jpg"
-    }
-  ]
-},
-
-
-
+  portfolio: {
+    eyebrow: "Our fleet",
+    heading: "Equipment available now",
+    subhead: "A sample of machines currently in the fleet. Filter by category, or get in touch to check availability for a specific job date.",
+    filters: ["All", "Excavators", "Cranes", "Generators", "Loaders"],
+    projects: [
+      {
+        id: "proj-01",
+        title: "20-Tonne Excavator",
+        category: "Excavators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Standard-reach excavator suited to foundation digging and general earthworks.",
+        image: "/images/project-01.jpg"
+      },
+      {
+        id: "proj-02",
+        title: "Mobile Crane — 25T",
+        category: "Cranes",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Mobile crane for structural steel, precast, and marine lifting jobs.",
+        image: "/images/project-02.jpg"
+      },
+      {
+        id: "proj-03",
+        title: "Prime Power Generator — 150kVA",
+        category: "Generators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Diesel generator suited to full-site prime power on longer leases.",
+        image: "/images/project-03.jpg"
+      },
+      {
+        id: "proj-04",
+        title: "Mini Excavator — 3T",
+        category: "Excavators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Compact excavator for tight-access sites and smaller trenching jobs.",
+        image: "/images/project-04.jpg"
+      },
+      {
+        id: "proj-05",
+        title: "Wheel Loader — 3m³",
+        category: "Loaders",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Wheel loader for material handling, stockpiling, and site clearing.",
+        image: "/images/project-05.jpg"
+      },
+      {
+        id: "proj-06",
+        title: "Backup Generator — 60kVA",
+        category: "Generators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Smaller backup unit suited to site offices and short-term power gaps.",
+        image: "/images/project-06.jpg"
+      }
+    ]
+  },
 
   process: {
     eyebrow: "How leasing works",
@@ -356,13 +290,13 @@ portfolio: {
       "Operator-Supplied Leasing",
       "Not sure yet"
     ],
-    formEndpoint: "/api/contact"
+    formEndpoint: "https://api.web3forms.com/submit"
   },
 
   interestModal: {
     heading: "Express interest",
     subhead: "Tell us a little about your job and which equipment you're asking about. We'll follow up by email.",
-    formEndpoint: "/api/interest"
+    formEndpoint: "https://api.web3forms.com/submit"
   },
 
   footer: {
