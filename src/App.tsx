@@ -269,17 +269,29 @@ Sent from: Swanlake Machinery Website
               ? 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950' 
               : 'bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white'
           }`}>
-            <div className="absolute inset-0 z-0 overflow-hidden">
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="auto"
+                ref={(videoRef) => {
+                  if (videoRef) {
+                    // Force muted state programmatically for mobile browser compliance
+                    videoRef.muted = true;
+                    videoRef.play().catch((err) => {
+                      console.warn("Autoplay deferred by browser policy:", err);
+                    });
+                  }
+                }}
                 className="w-full h-full object-cover opacity-25 scale-105"
               >
                 <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
                 Your browser does not support video playback.
               </video>
+
+              {/* Overlays for contrast */}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/90"></div>
               <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-20"></div>
             </div>
