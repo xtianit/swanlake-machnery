@@ -139,126 +139,127 @@ Sent from: Swanlake Machinery Website
         
         {/* Header Navigation */}
         <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
-          theme === 'dark' 
-            ? 'bg-slate-950/80 border-slate-800/80 text-white' 
-            : 'bg-white/80 border-slate-200 text-slate-900'
-        }`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-            
-            {/* Logo */}
-            <a href="#top" className="flex items-center gap-3 group shrink-0">
-              <div className="relative w-4 h-4 bg-amber-500 group-hover:rotate-45 transition-transform duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)]">
-                <div className="absolute inset-0 bg-amber-400 animate-ping opacity-75"></div>
-              </div>
-              <span className={`font-black text-lg sm:text-xl uppercase tracking-wider group-hover:text-amber-500 transition-colors ${
-                theme === 'dark' ? 'text-white' : 'text-slate-900'
-              }`}>
-                {SITE_CONTENT.company.name}
-              </span>
-            </a>
+  theme === 'dark' 
+    ? 'bg-slate-950/80 border-slate-800/80 text-white' 
+    : 'bg-white/80 border-slate-200 text-slate-900'
+}`}>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 sm:gap-4">
+    
+    {/* Logo - Added max-w and shrink logic to prevent pushing controls on small screens */}
+    <a href="#top" className="flex items-center gap-2 sm:gap-3 group shrink min-w-0">
+      <div className="relative w-4 h-4 bg-amber-500 group-hover:rotate-45 transition-transform duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)] shrink-0">
+        <div className="absolute inset-0 bg-amber-400 animate-ping opacity-75"></div>
+      </div>
+      <span className={`font-black text-base sm:text-xl uppercase tracking-wider group-hover:text-amber-500 transition-colors truncate ${
+        theme === 'dark' ? 'text-white' : 'text-slate-900'
+      }`}>
+        {SITE_CONTENT.company.name}
+      </span>
+    </a>
 
-            {/* Desktop Navigation Links */}
-            <nav className={`hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest ${
-              theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
-            }`}>
-              {SITE_CONTENT.nav.map((item) => (
-                <a 
-                  key={item.label} 
-                  href={item.href} 
-                  className="hover:text-amber-500 transition-colors relative py-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amber-500 hover:after:w-full after:transition-all after:duration-300"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
+    {/* Desktop Navigation Links */}
+    <nav className={`hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest ${
+      theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+    }`}>
+      {SITE_CONTENT.nav.map((item) => (
+        <a 
+          key={item.label} 
+          href={item.href} 
+          className="hover:text-amber-500 transition-colors relative py-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amber-500 hover:after:w-full after:transition-all after:duration-300"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
 
-            {/* Right Action Controls */}
-            <div className="flex items-center gap-3 shrink-0">
-              
-              {/* Theme Toggle Button */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle light or dark theme"
-                className={`px-3 py-2 rounded-sm border text-xs font-black uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all duration-300 z-10 ${
-                  theme === 'dark'
-                    ? 'bg-slate-900 border-slate-700 text-amber-400 hover:bg-slate-800 hover:border-amber-500'
-                    : 'bg-slate-200 border-slate-300 text-slate-900 hover:bg-slate-300 hover:border-slate-400'
-                }`}
-              >
-                {theme === 'dark' ? (
-                  <>
-                    <svg className="w-4 h-4 fill-amber-400 shrink-0" viewBox="0 0 20 20">
-                      <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-                    </svg>
-                    <span>Light</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4 fill-slate-800 shrink-0" viewBox="0 0 20 20">
-                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                    </svg>
-                    <span>Dark</span>
-                  </>
-                )}
-              </button>
+    {/* Right Action Controls */}
+    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      
+      {/* Theme Toggle Button - Hides text label on small mobile screens to save space */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label="Toggle light or dark theme"
+        className={`px-2.5 sm:px-3 py-2 rounded-sm border text-xs font-black uppercase tracking-wider flex items-center gap-2 cursor-pointer transition-all duration-300 ${
+          theme === 'dark'
+            ? 'bg-slate-900 border-slate-700 text-amber-400 hover:bg-slate-800 hover:border-amber-500'
+            : 'bg-slate-200 border-slate-300 text-slate-900 hover:bg-slate-300 hover:border-slate-400'
+        }`}
+      >
+        {theme === 'dark' ? (
+          <>
+            <svg className="w-4 h-4 fill-amber-400 shrink-0" viewBox="0 0 20 20">
+              <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+            </svg>
+            <span className="hidden xs:inline">Light</span>
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4 fill-slate-800 shrink-0" viewBox="0 0 20 20">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+            </svg>
+            <span className="hidden xs:inline">Dark</span>
+          </>
+        )}
+      </button>
 
-              {/* Primary CTA Button */}
-              <a 
-                href="#contact" 
-                className="hidden sm:inline-flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider hover:bg-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-300"
-              >
-                <span>Start a Project</span>
-                <span>→</span>
-              </a>
+      {/* Primary CTA Button */}
+      <a 
+        href="#contact" 
+        className="hidden sm:inline-flex items-center gap-2 py-2.5 px-5 bg-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider hover:bg-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-300"
+      >
+        <span>Start a Project</span>
+        <span>→</span>
+      </a>
 
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`lg:hidden p-2 focus:outline-none transition-colors ${
-                  theme === 'dark' ? 'text-slate-300 hover:text-amber-500' : 'text-slate-700 hover:text-amber-500'
-                }`}
-                aria-label="Toggle navigation menu"
-              >
-                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
-                  ) : (
-                    <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
-                  )}
-                </svg>
-              </button>
-
-            </div>
-          </div>
-
-          {/* Mobile Menu Dropdown */}
-          {isMobileMenuOpen && (
-            <div className={`lg:hidden backdrop-blur-2xl border-b px-6 pt-4 pb-8 space-y-4 ${
-              theme === 'dark' ? 'bg-slate-950/95 border-slate-800' : 'bg-white/95 border-slate-200'
-            }`}>
-              {SITE_CONTENT.nav.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-xs font-bold uppercase tracking-widest hover:text-amber-500 py-2.5 border-b transition-colors ${
-                    theme === 'dark' ? 'text-slate-300 border-slate-900' : 'text-slate-700 border-slate-100'
-                  }`}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <a
-                href="#contact"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-center py-3.5 bg-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider shadow-lg shadow-amber-500/20 mt-4"
-              >
-                Start a Project
-              </a>
-            </div>
+      {/* Mobile Menu Button - Added shrink-0 and explicit size wrappers */}
+      <button
+        type="button"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className={`lg:hidden p-2 rounded-md focus:outline-none shrink-0 transition-colors ${
+          theme === 'dark' ? 'text-slate-300 hover:text-amber-500' : 'text-slate-700 hover:text-amber-500'
+        }`}
+        aria-label="Toggle navigation menu"
+      >
+        <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+          {isMobileMenuOpen ? (
+            <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
+          ) : (
+            <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
           )}
-        </header>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+  {/* Mobile Menu Dropdown */}
+  {isMobileMenuOpen && (
+    <div className={`lg:hidden backdrop-blur-2xl border-b px-6 pt-4 pb-8 space-y-4 ${
+      theme === 'dark' ? 'bg-slate-950/95 border-slate-800' : 'bg-white/95 border-slate-200'
+    }`}>
+      {SITE_CONTENT.nav.map((item) => (
+        <a
+          key={item.label}
+          href={item.href}
+          onClick={() => setIsMobileMenuOpen(false)}
+          className={`block text-xs font-bold uppercase tracking-widest hover:text-amber-500 py-2.5 border-b transition-colors ${
+            theme === 'dark' ? 'text-slate-300 border-slate-900' : 'text-slate-700 border-slate-100'
+          }`}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="#contact"
+        onClick={() => setIsMobileMenuOpen(false)}
+        className="block text-center py-3.5 bg-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider shadow-lg shadow-amber-500/20 mt-4"
+      >
+        Start a Project
+      </a>
+    </div>
+  )}
+</header>
 
         <main id="top" className="pt-20">
           
