@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function RentalCalculator() {
   const [days, setDays] = useState<number>(7);
