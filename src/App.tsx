@@ -281,7 +281,7 @@ Sent from: Swanlake Machinery Website
                     });
                   }
                 }}
-                className="w-full h-full object-cover opacity-20 scale-105 motion-reduce:hidden"
+                className="w-full h-full object-cover scale-105 motion-reduce:hidden"
               >
                 <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
                 Your browser does not support video playback.
