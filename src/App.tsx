@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SplashScreen from './components/SplashScreen';
 import { SITE_CONTENT, type ServiceItem } from './data/content';
 import { InterestModal } from './components/InterestModal';
+//new content
 
 export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
