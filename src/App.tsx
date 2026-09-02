@@ -820,6 +820,7 @@ Sent from: Swanlake Machinery Website
 
         {selectedService && (
           <InterestModal
+            theme={theme}
             service={selectedService}
             onClose={() => setSelectedService(null)}
           />
