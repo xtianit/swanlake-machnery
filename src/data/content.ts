@@ -81,6 +81,11 @@ export interface SiteContent {
     subhead: string;
     projectTypes: string[];
     formEndpoint: string;
+    info: {
+      address: "123 Industrial Way, Suite 100, Lagos, Nigeria",
+      email: "info@swanlakemachinery.com",
+      phone: "+234 (0) 800 123 4567",
+    },
   };
   interestModal: {
     heading: string;
@@ -290,7 +295,12 @@ export const SITE_CONTENT: SiteContent = {
       "Operator-Supplied Leasing",
       "Not sure yet"
     ],
-    formEndpoint: "https://api.web3forms.com/submit"
+    formEndpoint: "https://api.web3forms.com/submit",
+    info: {
+      address: "123 Industrial Way, Suite 100, Lagos, Nigeria",
+      email: "info@swanlakemachinery.com",
+      phone: "+234 (0) 800 123 4567"
+    }
   },
 
   interestModal: {

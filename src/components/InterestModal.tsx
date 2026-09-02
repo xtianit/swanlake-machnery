@@ -17,6 +17,7 @@ interface InterestModalProps {
   service?: ServiceItem | null;
   isOpen?: boolean;
   onClose: () => void;
+  theme: "dark" | "light";
   defaultCategory?: string;
 }
 
