@@ -137,10 +137,19 @@ export const SITE_CONTENT: SiteContent = {
     ctaPrimary: { label: "View equipment", href: "#portfolio" },
     ctaSecondary: { label: "Request a lease", href: "#contact" },
     stats: [
-      { value: "—", label: "Machines in fleet" },
-      { value: "—", label: "Years leasing" },
-      { value: "24/7", label: "Breakdown support" }
-    ]
+      {
+        value: "250+", // Increased fleet count
+        label: "Machines in Fleet",
+      },
+      {
+        value: "15+", // Increased leasing experience
+        label: "Years Leasing Excellence",
+      },
+      {
+        value: "99%", // Or another high-performing operational stat
+        label: "Operational Uptime",
+      },
+    ],
   },
 
   about: {
