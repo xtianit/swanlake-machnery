@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import SplashScreen from './components/SplashScreen';
 import { SITE_CONTENT, type ServiceItem } from './data/content';
 import { InterestModal } from './components/InterestModal';
-//new content
-// import { AnimatedStat } from './components/AnimatedMetrics'; // Adjust the relative path if you placed it inside a components folder, e.g., './components/AnimatedStat'
 import { AnimatedMetrics } from './components/AnimatedMetrics';
+
 export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -128,11 +128,24 @@ Sent from: Swanlake Machinery Website
     }
   };
 
-  // Shared tokens (kept inline to match the rest of the file's style)
+  // Shared tokens
   const focusRing = "focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8590C]";
 
   return (
-    <>
+    <HelmetProvider>
+      <Helmet>
+        <title>Swanlake Machinery | Heavy Equipment Leasing & Rental</title>
+        <meta
+          name="description"
+          content="High-performance heavy equipment rental, machinery leasing, and fleet solutions for construction projects across Nigeria."
+        />
+        <meta
+          name="keywords"
+          content="Swanlake Machinery, heavy equipment rental, machinery leasing, fleet management, construction machinery"
+        />
+        <link rel="canonical" href="https://swanlakemachinery.com" />
+      </Helmet>
+
       {loading && <SplashScreen />}
 
       <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#E8590C] selection:text-[#14171B] ${
@@ -338,16 +351,6 @@ Sent from: Swanlake Machinery Website
                 </div>
               </div>
 
-              {/* Hero Stats */}
-              {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-[#242A31] pt-8 mt-16 max-w-4xl">
-                {SITE_CONTENT.hero.stats.map((stat, i) => (
-                  // <div key={i} className="bg-[#1B1F24]/60 p-4 border border-[#242A31] backdrop-blur-sm">
-                  //   <span className="block text-3xl sm:text-4xl font-['Barlow_Condensed',sans-serif] font-black text-[#E8590C]">{stat.value}</span>
-                  //   <span className="text-[10px] sm:text-xs font-bold text-[#9CA3AC] uppercase tracking-wider mt-1 block">{stat.label}</span>
-                  // </div>
-
-                ))}
-              </div> */}
               {/* Hero Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-[#242A31] pt-8 mt-16 max-w-4xl">
                 {SITE_CONTENT.hero.stats.map((stat, i) => (
@@ -834,6 +837,6 @@ Sent from: Swanlake Machinery Website
           />
         )}
       </div>
-    </>
+    </HelmetProvider>
   );
 }
