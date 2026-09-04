@@ -100,7 +100,7 @@ export interface SiteContent {
 
 export const SITE_CONTENT: SiteContent = {
   company: {
-    name: "Swanlake Machiner",
+    name: "Swanlake",
     fullName: "Swanlake Machinery Ltd.",
     phone: "",
     phoneHref: "",
@@ -124,7 +124,7 @@ export const SITE_CONTENT: SiteContent = {
 
   hero: {
     videoSrc: "/hero-loop.mp4",
-    posterSrc: "/hero-poster.jpg",
+    posterSrc: "/hero-poster.webp",
     eyebrow: "Effurun, Warri — Delta State",
     headlinePrefix: "Heavy machinery,",
     rotatingWords: [
@@ -167,9 +167,9 @@ export const SITE_CONTENT: SiteContent = {
       { value: "—", label: "Operators on call" }
     ],
     images: [
-      "/images/about-1.jpg",
-      "/images/about-2.jpg",
-      "/images/about-3.jpg"
+      "/images/about-1.webp",
+      "/images/about-2.webp",
+      "/images/about-3.webp"
     ]
   },
 
@@ -182,37 +182,37 @@ export const SITE_CONTENT: SiteContent = {
         id: "excavators",
         name: "Excavators",
         summary: "Mini to standard-reach excavators for digging, grading, and demolition work.",
-        image: "/images/service-residential.jpg"
+        image: "/images/service-residential.webp"
       },
       {
         id: "cranes",
         name: "Cranes & Lifting",
         summary: "Mobile cranes and lifting equipment for structural, marine, and industrial loads.",
-        image: "/images/service-commercial.jpg"
+        image: "/images/service-commercial.webp"
       },
       {
         id: "generators",
         name: "Generators",
         summary: "Site power generation, from small backup units to full-site prime power.",
-        image: "/images/service-renovation.jpg"
+        image: "/images/service-renovation.webp"
       },
       {
         id: "loaders-graders",
         name: "Loaders & Graders",
         summary: "Wheel loaders and motor graders for site clearing, grading, and material handling.",
-        image: "/images/service-designbuild.jpg"
+        image: "/images/service-designbuild.webp"
       },
       {
         id: "compaction",
         name: "Compaction Equipment",
         summary: "Rollers and plate compactors for road base, foundation, and asphalt work.",
-        image: "/images/service-pm.jpg"
+        image: "/images/service-pm.webp"
       },
       {
         id: "operators",
         name: "Operator-Supplied Leasing",
         summary: "Any machine above, leased together with a qualified, insured operator.",
-        image: "/images/service-sitedev.jpg"
+        image: "/images/service-sitedev.webp"
       }
     ]
   },
@@ -230,7 +230,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Standard-reach excavator suited to foundation digging and general earthworks.",
-        image: "/images/project-01.jpg"
+        image: "/images/project-01.webp"
       },
       {
         id: "proj-02",
@@ -239,7 +239,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Mobile crane for structural steel, precast, and marine lifting jobs.",
-        image: "/images/project-02.jpg"
+        image: "/images/project-02.webp"
       },
       {
         id: "proj-03",
@@ -248,7 +248,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Diesel generator suited to full-site prime power on longer leases.",
-        image: "/images/project-03.jpg"
+        image: "/images/project-03.webp"
       },
       {
         id: "proj-04",
@@ -257,7 +257,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Compact excavator for tight-access sites and smaller trenching jobs.",
-        image: "/images/project-04.jpg"
+        image: "/images/project-04.webp"
       },
       {
         id: "proj-05",
@@ -266,7 +266,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Wheel loader for material handling, stockpiling, and site clearing.",
-        image: "/images/project-05.jpg"
+        image: "/images/project-05.webp"
       },
       {
         id: "proj-06",
@@ -275,7 +275,7 @@ export const SITE_CONTENT: SiteContent = {
         location: "Effurun yard",
         year: "Available",
         summary: "Smaller backup unit suited to site offices and short-term power gaps.",
-        image: "/images/project-06.jpg"
+        image: "/images/project-06.webp"
       }
     ]
   },
