@@ -150,7 +150,7 @@ Sent from: Swanlake Machinery Website
       }`}>
 
         {/* Header Navigation */}
-        <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
+        {/* <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
           theme === 'dark'
             ? 'bg-[#14171B]/95 border-[#242A31] text-[#ECEDEF]'
             : 'bg-white/95 border-[#C9C6BC] text-[#14171B]'
@@ -251,7 +251,113 @@ Sent from: Swanlake Machinery Website
               </nav>
             </div>
           )}
-        </header>
+        </header> */}
+        <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
+  theme === 'dark'
+    ? 'bg-[#14171B]/95 border-[#242A31] text-[#ECEDEF]'
+    : 'bg-white/95 border-[#C9C6BC] text-[#14171B]'
+}`}>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
+
+    {/* Brand / Logo */}
+    <a href="#top" className={`flex items-center gap-2.5 shrink-0 rounded-sm ${focusRing}`}>
+      <div
+        className="w-7 h-7 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
+      />
+      <span className={`font-['Barlow_Condensed',sans-serif] font-black text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider ${
+        theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+      }`}>
+        {SITE_CONTENT.company.name}
+      </span>
+    </a>
+
+    {/* Desktop Navigation Links - Made flex-1 & centered */}
+    <nav className={`hidden lg:flex items-center justify-center gap-6 xl:gap-8 text-sm xl:text-base font-bold uppercase tracking-wider ${
+      theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+    }`}>
+      {SITE_CONTENT.nav.map((item) => (
+        <a
+          key={item.label}
+          href={item.href}
+          className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap ${focusRing}`}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    {/* Right Actions */}
+    <div className="flex items-center gap-3 shrink-0">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        aria-label="Toggle theme"
+        className={`p-2.5 sm:px-4 sm:py-2.5 rounded-sm border text-xs sm:text-sm font-black uppercase flex items-center gap-2 cursor-pointer transition-colors ${focusRing} ${
+          theme === 'dark'
+            ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
+            : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
+        }`}
+      >
+        {theme === 'dark' ? (
+          <svg className="w-5 h-5 fill-[#FFC42B] shrink-0" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5 fill-[#14171B] shrink-0" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+          </svg>
+        )}
+        <span className="hidden md:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+      </button>
+
+      <a
+        href="#contact"
+        className={`hidden sm:inline-flex items-center py-2.5 px-6 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs sm:text-sm tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap ${focusRing}`}
+        style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
+      >
+        Start Project
+      </a>
+
+      <button
+        type="button"
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className={`lg:hidden p-2.5 rounded-md transition-colors ${focusRing} ${
+          theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+        }`}
+        aria-label="Toggle menu"
+      >
+        <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
+          {isMobileMenuOpen ? (
+            <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
+          ) : (
+            <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
+          )}
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  {/* Mobile Dropdown */}
+  {isMobileMenuOpen && (
+    <div className={`lg:hidden border-b px-8 py-10 space-y-6 ${
+      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+    }`}>
+      <nav className="flex flex-col gap-6 text-2xl font-black uppercase tracking-wider">
+        {SITE_CONTENT.nav.map((item) => (
+          <a
+            key={item.label}
+            href={item.href}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="hover:text-[#E8590C] transition-colors py-2"
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    </div>
+  )}
+</header>
 
         <main id="top" className="pt-24 sm:pt-28">
 
