@@ -100,7 +100,7 @@ export interface SiteContent {
 
 export const SITE_CONTENT: SiteContent = {
   company: {
-    name: "Swanlake Machinery",
+    name: "Swanlake Machiner",
     fullName: "Swanlake Machinery Ltd.",
     phone: "",
     phoneHref: "",
