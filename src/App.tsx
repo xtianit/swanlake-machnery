@@ -1,924 +1,325 @@
-import { useState, useEffect } from 'react';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import SplashScreen from './components/SplashScreen';
-import { SITE_CONTENT, type ServiceItem } from './data/content';
-import { InterestModal } from './components/InterestModal';
-import { AnimatedMetrics } from './components/AnimatedMetrics';
-
-export default function App() {
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
-  });
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
-
-  const [activeFilter, setActiveFilter] = useState<string>('All');
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
-  const [contactSubmitted, setContactSubmitted] = useState<boolean>(false);
-  const [contactSubmitting, setContactSubmitting] = useState<boolean>(false);
-  const [contactError, setContactError] = useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-
-  const [wordIndex, setWordIndex] = useState<number>(0);
-  const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
-  useEffect(() => {
-    const splashTimer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    return () => clearTimeout(splashTimer);
-  }, []);
-
-  useEffect(() => {
-    const words = SITE_CONTENT.hero.rotatingWords;
-    if (!words || words.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setWordIndex((prev) => (prev + 1) % words.length);
-        setIsAnimating(false);
-      }, 700);
-    }, 7500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const [currentAboutImage, setCurrentAboutImage] = useState<number>(0);
-
-  useEffect(() => {
-    const images = SITE_CONTENT.about.images;
-    if (!images || images.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentAboutImage((prev) => (prev + 1) % images.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const filteredProjects = activeFilter === 'All'
-    ? SITE_CONTENT.portfolio.projects
-    : SITE_CONTENT.portfolio.projects.filter(p => p.category === activeFilter);
-
-  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setContactSubmitting(true);
-    setContactError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const phone = (formData.get('phone') as string) || 'N/A';
-    const category = (formData.get('category') as string) || 'General Inquiry';
-    const userMessage = (formData.get('message') as string) || 'No message provided.';
-
-    const messageBody = `
-NEW INQUIRY — SWANLAKE MACHINERY
-----------------------------------------
-Customer Name : ${name}
-Email Address : ${email}
-Phone Number  : ${phone}
-Category      : ${category}
-----------------------------------------
-Message:
-${userMessage}
-----------------------------------------
-Sent from: Swanlake Machinery Website
-  `.trim();
-
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          access_key: "710745a1-96b8-4988-800f-776ca3e7849c",
-          from_name: `${name} (Swanlake Inquiry)`,
-          subject: `New Equipment Request: ${category} - ${name}`,
-          replyto: email,
-          message: messageBody,
-        })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setContactSubmitted(true);
-        setContactError(null);
-      } else {
-        setContactError(result.message || 'Submission failed. Please check your Access Key.');
-      }
-    } catch (err) {
-      console.error("Form error:", err);
-      setContactError('An error occurred. Please try again.');
-    } finally {
-      setContactSubmitting(false);
-    }
-  };
-
-  const focusRing = "focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8590C]";
-
-  return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Swanlake Machinery | Heavy Equipment Leasing & Rental</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="High-performance heavy equipment rental, machinery leasing, and fleet solutions for construction projects across Nigeria."
-        />
-        <meta
-          name="keywords"
-          content="Swanlake Machinery, heavy equipment rental, machinery leasing, fleet management, construction machinery"
-        />
-        <link rel="canonical" href="https://swanlakemachinery.com" />
-      </Helmet>
-
-      {loading && <SplashScreen />}
-
-      <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#E8590C] selection:text-[#14171B] ${
-        theme === 'dark' ? 'bg-[#14171B] text-[#ECEDEF]' : 'bg-[#F3F2EE] text-[#14171B]'
-      }`}>
-
-        {/* Header Navigation */}
-        {/* <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
-          theme === 'dark'
-            ? 'bg-[#14171B]/95 border-[#242A31] text-[#ECEDEF]'
-            : 'bg-white/95 border-[#C9C6BC] text-[#14171B]'
-        }`}>
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-24 sm:h-28 flex items-center justify-between gap-3">
-
-            <a href="#top" className={`flex items-center gap-3 shrink min-w-0 rounded-sm ${focusRing}`}>
-              <div
-                className="w-8 h-8 bg-[#E8590C] shrink-0"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
-              />
-              <span className={`font-['Barlow_Condensed',sans-serif] font-black text-2xl sm:text-4xl uppercase tracking-wider truncate ${
-                theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-              }`}>
-                {SITE_CONTENT.company.name}
-              </span>
-            </a>
-
-            <nav className={`hidden lg:flex items-center gap-8 text-base font-bold uppercase tracking-widest ${
-              theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-            }`}>
-              {SITE_CONTENT.nav.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`hover:text-[#E8590C] transition-colors relative py-2 rounded-sm ${focusRing}`}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-
-            <div className="flex items-center gap-4 shrink-0">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className={`p-4 sm:px-5 sm:py-3 rounded-sm border text-sm sm:text-base font-black uppercase flex items-center gap-2 cursor-pointer transition-colors ${focusRing} ${
-                  theme === 'dark'
-                    ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
-                    : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-                }`}
-              >
-                {theme === 'dark' ? (
-                  <svg className="w-6 h-6 fill-[#FFC42B] shrink-0" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6 fill-[#14171B] shrink-0" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-                <span className="hidden md:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-              </button>
-
-              <a
-                href="#contact"
-                className={`hidden sm:inline-flex items-center py-4 px-8 bg-[#E8590C] text-[#14171B] font-black uppercase text-sm sm:text-base tracking-wider hover:bg-[#FF7A29] transition-colors ${focusRing}`}
-                style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
-              >
-                Start Project
-              </a>
-
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`lg:hidden p-3.5 rounded-md transition-colors ${focusRing} ${
-                  theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-                }`}
-                aria-label="Toggle menu"
-              >
-                <svg className="w-10 h-10 fill-current" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
-                  ) : (
-                    <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
-                  )}
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {isMobileMenuOpen && (
-            <div className={`lg:hidden border-b px-8 py-10 space-y-6 ${
-              theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-            }`}>
-              <nav className="flex flex-col gap-6 text-2xl font-black uppercase tracking-wider">
-                {SITE_CONTENT.nav.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="hover:text-[#E8590C] transition-colors py-2"
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </nav>
-            </div>
-          )}
-        </header> */}
-        <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
-  theme === 'dark'
-    ? 'bg-[#14171B]/95 border-[#242A31] text-[#ECEDEF]'
-    : 'bg-white/95 border-[#C9C6BC] text-[#14171B]'
-}`}>
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
-
-    {/* Brand / Logo */}
-    <a href="#top" className={`flex items-center gap-2.5 shrink-0 rounded-sm ${focusRing}`}>
-      <div
-        className="w-7 h-7 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
-        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
-      />
-      <span className={`font-['Barlow_Condensed',sans-serif] font-black text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider ${
-        theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-      }`}>
-        {SITE_CONTENT.company.name}
-      </span>
-    </a>
-
-    {/* Desktop Navigation Links - Made flex-1 & centered */}
-    <nav className={`hidden lg:flex items-center justify-center gap-6 xl:gap-8 text-sm xl:text-base font-bold uppercase tracking-wider ${
-      theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-    }`}>
-      {SITE_CONTENT.nav.map((item) => (
-        <a
-          key={item.label}
-          href={item.href}
-          className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap ${focusRing}`}
-        >
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    {/* Right Actions */}
-    <div className="flex items-center gap-3 shrink-0">
-      <button
-        type="button"
-        onClick={toggleTheme}
-        aria-label="Toggle theme"
-        className={`p-2.5 sm:px-4 sm:py-2.5 rounded-sm border text-xs sm:text-sm font-black uppercase flex items-center gap-2 cursor-pointer transition-colors ${focusRing} ${
-          theme === 'dark'
-            ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
-            : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-        }`}
-      >
-        {theme === 'dark' ? (
-          <svg className="w-5 h-5 fill-[#FFC42B] shrink-0" viewBox="0 0 20 20">
-            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5 fill-[#14171B] shrink-0" viewBox="0 0 20 20">
-            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-          </svg>
-        )}
-        <span className="hidden md:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-      </button>
-
-      <a
-        href="#contact"
-        className={`hidden sm:inline-flex items-center py-2.5 px-6 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs sm:text-sm tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap ${focusRing}`}
-        style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
-      >
-        Start Project
-      </a>
-
-      <button
-        type="button"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className={`lg:hidden p-2.5 rounded-md transition-colors ${focusRing} ${
-          theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-        }`}
-        aria-label="Toggle menu"
-      >
-        <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
-          {isMobileMenuOpen ? (
-            <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
-          ) : (
-            <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
-          )}
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  {/* Mobile Dropdown */}
-  {isMobileMenuOpen && (
-    <div className={`lg:hidden border-b px-8 py-10 space-y-6 ${
-      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-    }`}>
-      <nav className="flex flex-col gap-6 text-2xl font-black uppercase tracking-wider">
-        {SITE_CONTENT.nav.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="hover:text-[#E8590C] transition-colors py-2"
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
-    </div>
-  )}
-</header>
-
-        <main id="top" className="pt-24 sm:pt-28">
-
-          {/* Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                ref={(videoRef) => {
-                  if (videoRef) {
-                    videoRef.muted = true;
-                    videoRef.play().catch((err) => {
-                      console.warn("Autoplay deferred by browser policy:", err);
-                    });
-                  }
-                }}
-                className="w-full h-full object-cover scale-105 motion-reduce:hidden"
-              >
-                <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
-                Your browser does not support video playback.
-              </video>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/70 to-[#14171B]/90" />
-              <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
-            </div>
-
-            <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-start">
-              <div className="mt-4 sm:mt-8 max-w-4xl">
-                <div
-                  className="inline-flex items-center gap-3 pl-4 pr-6 py-3 bg-[#1B1F24] border-t-2 border-[#E8590C] text-[#ECEDEF] text-base sm:text-lg font-bold mb-8"
-                  style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
-                >
-                  <span className="w-3 h-3 bg-[#E8590C] shrink-0" />
-                  {SITE_CONTENT.hero.eyebrow}
-                </div>
-
-                <h1 className="font-['Barlow_Condensed',sans-serif] text-7xl sm:text-8xl lg:text-9xl font-black uppercase tracking-tight leading-[1.05] text-[#ECEDEF]">
-                  {SITE_CONTENT.hero.headlinePrefix}{" "}
-                  <span className="inline-block overflow-hidden align-top h-[1.25em]">
-                    <span
-                      className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none ${
-                        isAnimating
-                          ? '-translate-y-full opacity-0'
-                          : 'translate-y-0 opacity-100'
-                      }`}
-                    >
-                      {SITE_CONTENT.hero.rotatingWords[wordIndex]}
-                    </span>
-                  </span>
-                </h1>
-
-                <p className="text-[#B7BCC3] text-lg sm:text-xl mt-8 sm:mt-10 max-w-2xl leading-relaxed font-normal">
-                  {SITE_CONTENT.hero.subhead}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-6 mt-12">
-                  <a
-                    href={SITE_CONTENT.hero.ctaPrimary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${focusRing}`}
-                    style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
-                  >
-                    {SITE_CONTENT.hero.ctaPrimary.label}
-                  </a>
-                  <a
-                    href={SITE_CONTENT.hero.ctaSecondary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 border border-[#333B44] bg-[#1B1F24]/50 backdrop-blur-sm text-[#ECEDEF] font-bold uppercase text-base sm:text-lg tracking-wider hover:border-[#E8590C] hover:text-[#E8590C] transition-colors duration-300 ${focusRing}`}
-                  >
-                    {SITE_CONTENT.hero.ctaSecondary.label}
-                  </a>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6 border-t border-[#242A31] pt-12 mt-16 sm:mt-20 max-w-4xl">
-                {SITE_CONTENT.hero.stats.map((stat, i) => (
-                  <AnimatedMetrics key={i} value={stat.value} label={stat.label} />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* About Section */}
-          <section id="about" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-16 items-center">
-                <div>
-                  <span className="text-[#E8590C] font-bold text-base sm:text-lg border-l-2 border-[#E8590C] pl-4 block">
-                    {SITE_CONTENT.about.eyebrow}
-                  </span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                  }`}>
-                    {SITE_CONTENT.about.heading}
-                  </h2>
-                  <div className={`space-y-6 text-lg sm:text-xl leading-relaxed mt-8 font-normal ${
-                    theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-                  }`}>
-                    {SITE_CONTENT.about.paragraphs.map((p, i) => (
-                      <p key={i}>{p}</p>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-8">
-                  <div className={`relative border shadow-2xl overflow-hidden h-96 sm:h-[420px] w-full ${
-                    theme === 'dark' ? 'border-[#242A31] bg-[#14171B]' : 'border-[#C9C6BC] bg-[#F3F2EE]'
-                  }`}>
-                    {SITE_CONTENT.about.images.map((imgUrl, index) => (
-                      <img
-                        key={imgUrl}
-                        src={imgUrl}
-                        alt={`${SITE_CONTENT.company.fullName} machine ${index + 1}`}
-                        onError={(e) => {
-                          e.currentTarget.src = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80";
-                        }}
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out motion-reduce:transition-none ${
-                          index === currentAboutImage ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                        }`}
-                      />
-                    ))}
-
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-4 bg-[#14171B]/80 p-4 backdrop-blur-md border border-[#242A31]">
-                      {SITE_CONTENT.about.images.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentAboutImage(index)}
-                          className={`h-3.5 transition-all rounded-sm ${focusRing} ${
-                            index === currentAboutImage ? 'w-12 bg-[#E8590C]' : 'w-3.5 bg-white/40'
-                          }`}
-                          aria-label={`Go to slide ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className={`p-8 border grid grid-cols-2 lg:grid-cols-4 gap-6 text-center ${
-                    theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC] shadow-sm'
-                  }`}>
-                    {SITE_CONTENT.about.stats.map((s, i) => (
-                      <div key={i} className="p-3">
-                        <span className="block text-4xl sm:text-5xl font-['Barlow_Condensed',sans-serif] font-black text-[#E8590C]">{s.value}</span>
-                        <span className={`text-sm sm:text-base font-bold uppercase tracking-wider mt-2 block ${
-                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#6B7178]'
-                        }`}>
-                          {s.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Equipment Categories / Services Section */}
-          <section id="services" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-          }`}>
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-              <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.services.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.services.heading}</h2>
-                <p className={`text-lg sm:text-xl mt-6 leading-relaxed ${
-                  theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                }`}>{SITE_CONTENT.services.subhead}</p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-14 lg:gap-12">
-                {SITE_CONTENT.services.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`group relative overflow-hidden flex flex-col justify-between border transition-colors duration-300 ${
-                      theme === 'dark'
-                        ? 'bg-[#1B1F24] border-[#242A31] hover:border-[#E8590C]/70'
-                        : 'bg-[#F9F8F5] border-[#C9C6BC] hover:border-[#E8590C]/70 shadow-sm'
-                    }`}
-                  >
-                    <span className="absolute top-0 left-0 h-[6px] w-0 bg-[#E8590C] transition-all duration-300 group-hover:w-full z-20" />
-                    <div>
-                      <div className="relative overflow-hidden h-80 sm:h-72">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out motion-reduce:transform-none"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/40 to-transparent" />
-                        <span className="absolute top-5 right-5 text-sm font-black uppercase tracking-widest px-4 py-2 bg-[#FFC42B] text-[#14171B]">
-                          Available
-                        </span>
-                      </div>
-                      <div className="p-8 sm:p-10">
-                        <h3 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase group-hover:text-[#E8590C] transition-colors duration-300 ${
-                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                        }`}>
-                          {item.name}
-                        </h3>
-                        <p className={`text-lg mt-5 leading-relaxed ${
-                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                        }`}>
-                          {item.summary}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="p-8 sm:p-10 pt-0">
-                      <button
-                        onClick={() => setSelectedService(item)}
-                        className={`w-full py-5 border text-[#E8590C] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#E8590C] hover:text-[#14171B] hover:border-[#E8590C] transition-colors duration-300 text-center ${focusRing} ${
-                          theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                        }`}
-                      >
-                        Express Interest
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Portfolio Section */}
-          <section id="portfolio" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-              <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.portfolio.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.portfolio.heading}</h2>
-                <p className={`text-lg sm:text-xl mt-6 leading-relaxed ${
-                  theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                }`}>{SITE_CONTENT.portfolio.subhead}</p>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-4 mb-14 sm:mb-20">
-                {SITE_CONTENT.portfolio.filters.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setActiveFilter(category)}
-                    className={`px-7 sm:px-8 py-4 text-sm sm:text-base font-bold uppercase tracking-wider border transition-colors ${focusRing} ${
-                      activeFilter === category
-                        ? 'bg-[#E8590C] text-[#14171B] border-[#E8590C]'
-                        : theme === 'dark'
-                        ? 'bg-[#14171B] text-[#9CA3AC] border-[#242A31] hover:border-[#333B44]'
-                        : 'bg-white text-[#4B5158] border-[#C9C6BC] hover:border-[#9C9890]'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-14 lg:gap-12">
-                {filteredProjects.map((project) => (
-                  <div key={project.id} className={`border overflow-hidden group transition-colors ${
-                    theme === 'dark' ? 'bg-[#14171B] border-[#242A31] hover:border-[#333B44]' : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
-                  }`}>
-                    <div className="h-80 sm:h-72 overflow-hidden relative">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:brightness-110 transition-[filter] duration-500 motion-reduce:transition-none"
-                      />
-                      <div className="absolute top-5 left-5 bg-[#E8590C] text-[#14171B] text-xs font-black uppercase tracking-widest px-4 py-2">
-                        {project.category}
-                      </div>
-                    </div>
-                    <div className="p-8 sm:p-10">
-                      <div className="flex justify-between items-start gap-4">
-                        <h3 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase ${
-                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                        }`}>{project.title}</h3>
-                        <span className="text-xs font-bold text-[#5C7A99] uppercase bg-[#5C7A99]/10 border border-[#5C7A99]/30 px-3.5 py-1.5 shrink-0">
-                          {project.year}
-                        </span>
-                      </div>
-                      <p className={`text-lg mt-5 leading-relaxed ${
-                        theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                      }`}>{project.summary}</p>
-                      <div className={`mt-8 pt-6 border-t text-sm sm:text-base font-bold uppercase flex justify-between ${
-                        theme === 'dark' ? 'border-[#1B1F24] text-[#6B7178]' : 'border-[#E8E6DF] text-[#9C9890]'
-                      }`}>
-                        <span>Location:</span>
-                        <span className={theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'}>{project.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Process Section */}
-          <section id="process" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-          }`}>
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-              <div className="text-center max-w-3xl mx-auto mb-20 sm:mb-24">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.process.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.process.heading}</h2>
-              </div>
-
-              <div className="relative max-w-6xl mx-auto">
-                <div className={`hidden lg:block absolute top-8 left-[6%] right-[6%] h-px ${
-                  theme === 'dark' ? 'bg-[#242A31]' : 'bg-[#C9C6BC]'
-                }`} />
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-y-14 gap-x-12">
-                  {SITE_CONTENT.process.steps.map((step, idx) => (
-                    <div key={idx} className="relative flex flex-col items-start">
-                      <div
-                        className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center font-['Barlow_Condensed',sans-serif] font-black text-2xl sm:text-3xl border-2 border-[#E8590C] text-[#E8590C] ${
-                          theme === 'dark' ? 'bg-[#14171B]' : 'bg-white'
-                        }`}
-                        style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
-                      >
-                        {idx + 1}
-                      </div>
-                      <h3 className={`font-['Barlow_Condensed',sans-serif] font-bold text-3xl sm:text-4xl uppercase mt-6 ${
-                        theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                      }`}>{step.title}</h3>
-                      <p className={`text-lg mt-4 leading-relaxed ${
-                        theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                      }`}>{step.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Contact Section */}
-          <section id="contact" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
-            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-18">
-                <div className="lg:col-span-5">
-                  <span className="text-[#E8590C] font-bold text-base sm:text-lg border-l-2 border-[#E8590C] pl-4 block">{SITE_CONTENT.contact.eyebrow}</span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                  }`}>{SITE_CONTENT.contact.heading}</h2>
-                  <p className={`text-lg sm:text-xl leading-relaxed mt-6 ${
-                    theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-                  }`}>
-                    {SITE_CONTENT.contact.subhead}
-                  </p>
-
-                  <div className="mt-12 space-y-8 text-base">
-                    <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                    }`}>
-                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Yard Address</span>
-                      <span className={`font-bold text-lg sm:text-xl ${theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'}`}>{SITE_CONTENT.company.address}</span>
-                    </div>
-                    <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                    }`}>
-                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Email Inquiry</span>
-                      <a href={`mailto:${SITE_CONTENT.company.email}`} className={`text-[#E8590C] font-bold text-lg sm:text-xl hover:underline rounded-sm ${focusRing}`}>
-                        {SITE_CONTENT.company.email}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={`lg:col-span-7 p-8 sm:p-14 border shadow-2xl ${
-                  theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                }`}>
-                  {contactSubmitted ? (
-                    <div className="p-12 bg-[#3D9A5C]/10 border border-[#3D9A5C]/30 text-[#3D9A5C] text-lg sm:text-xl font-bold text-center space-y-6">
-                      <p>Thank you! Your inquiry has been submitted. We will contact you by email shortly.</p>
-                      <button
-                        onClick={() => setContactSubmitted(false)}
-                        className={`text-base sm:text-lg text-[#E8590C] uppercase underline cursor-pointer rounded-sm ${focusRing}`}
-                      >
-                        Send another message
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-8">
-                      {contactError && (
-                        <div className="p-6 bg-[#C4432B]/10 border border-[#C4432B]/30 text-[#C4432B] text-base sm:text-lg font-bold">
-                          {contactError}
-                        </div>
-                      )}
-                      <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Full Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          required
-                          className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
-                            theme === 'dark'
-                              ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
-                              : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
-                          }`}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                        <div>
-                          <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Email</label>
-                          <input
-                            type="email"
-                            name="email"
-                            required
-                            className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
-                              theme === 'dark'
-                                ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
-                                : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
-                            }`}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Phone</label>
-                          <input
-                            type="tel"
-                            name="phone"
-                            className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
-                              theme === 'dark'
-                                ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
-                                : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
-                            }`}
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Equipment Category</label>
-                        <select
-                          name="category"
-                          className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
-                            theme === 'dark'
-                              ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
-                              : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
-                          }`}
-                        >
-                          <option value="General Inquiry">General Inquiry</option>
-                          <option value="Earthmoving Equipment">Earthmoving Equipment</option>
-                          <option value="Lifting & Cranes">Lifting & Cranes</option>
-                          <option value="Haulage & Transport">Haulage & Transport</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Message</label>
-                        <textarea
-                          name="message"
-                          rows={4}
-                          required
-                          className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
-                            theme === 'dark'
-                              ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
-                              : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
-                          }`}
-                        ></textarea>
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={contactSubmitting}
-                        className={`w-full py-6 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 disabled:opacity-50 cursor-pointer ${focusRing}`}
-                        style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
-                      >
-                        {contactSubmitting ? 'Sending...' : 'Send Message'}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t bg-[#14171B] border-[#242A31] text-[#9CA3AC]">
-          <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-14">
-
-              <div className="lg:col-span-2 space-y-6">
-                <a href="#top" className={`flex items-center gap-3 rounded-sm ${focusRing}`}>
-                  <div
-                    className="w-8 h-8 bg-[#E8590C]"
-                    style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
-                  />
-                  <span className="font-['Barlow_Condensed',sans-serif] font-black text-3xl uppercase tracking-wider text-[#ECEDEF]">
-                    {SITE_CONTENT.company.name}
-                  </span>
-                </a>
-                <p className="text-lg leading-relaxed text-[#9CA3AC] max-w-sm">
-                  {SITE_CONTENT.company.fullName} provides heavy equipment leasing, operator staffing, and site fleet logistics across Nigeria.
-                </p>
-                <div className="text-base text-[#6B7178] pt-2">
-                  <span>Yard Location: </span>
-                  <span className="text-[#B7BCC3] font-bold">{SITE_CONTENT.company.address}</span>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Navigation</h4>
-                <ul className="space-y-4 text-base font-bold uppercase tracking-wider">
-                  {SITE_CONTENT.nav.map((item) => (
-                    <li key={item.label}>
-                      <a href={item.href} className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Fleet Categories</h4>
-                <ul className="space-y-4 text-base font-bold uppercase tracking-wider">
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Earthmoving</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Lifting & Cranes</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Compaction</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Power Generation</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Haulage & Transport</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Direct Contact</h4>
-                <div className="space-y-6 text-base sm:text-lg">
-                  <div>
-                    <span className="block text-sm text-[#6B7178] uppercase font-bold">Dispatch Email</span>
-                    <a href={`mailto:${SITE_CONTENT.company.email}`} className={`text-[#E8590C] font-bold hover:underline rounded-sm ${focusRing}`}>
-                      {SITE_CONTENT.company.email}
-                    </a>
-                  </div>
-                  <div>
-                    <span className="block text-sm text-[#6B7178] uppercase font-bold">24/7 Support</span>
-                    <span className="text-[#B7BCC3] font-bold">+234 (0) 800-MACHINERY</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <div className="mt-16 sm:mt-24 pt-12 border-t border-[#242A31] flex flex-col sm:flex-row items-center justify-between gap-6 text-base text-[#6B7178]">
-              <p>© {new Date().getFullYear()} {SITE_CONTENT.company.fullName}. All rights reserved.</p>
-              <a href="#top" className={`text-[#E8590C] hover:text-[#FF7A29] font-bold uppercase tracking-widest text-sm sm:text-base transition-colors rounded-sm ${focusRing}`}>
-                Back to top
-              </a>
-            </div>
-          </div>
-        </footer>
-
-        {selectedService && (
-          <InterestModal
-            theme={theme}
-            service={selectedService}
-            onClose={() => setSelectedService(null)}
-          />
-        )}
-      </div>
-    </HelmetProvider>
-  );
+// src/data/content.ts
+
+export interface ServiceItem {
+  id: string;
+  name: string;
+  summary: string;
+  image: string;
 }
+
+export interface PortfolioProject {
+  id: string;
+  title: string;
+  category: string;
+  location: string;
+  year: string;
+  summary: string;
+  image: string;
+}
+
+export interface ProcessStep {
+  title: string;
+  detail: string;
+}
+
+export interface SiteContent {
+  company: {
+    name: string;
+    fullName: string;
+    phone: string;
+    phoneHref: string;
+    email: string;
+    address: string;
+    hours: string;
+    social: {
+      instagram: string;
+      facebook: string;
+      linkedin: string;
+    };
+  };
+  nav: Array<{ label: string; href: string }>;
+  hero: {
+    videoSrc: string;
+    posterSrc: string;
+    eyebrow: string;
+    headline?: string;
+    headlinePrefix: string;
+    rotatingWords: string[];
+    subhead: string;
+    ctaPrimary: { label: string; href: string };
+    ctaSecondary: { label: string; href: string };
+    stats: Array<{ value: string; label: string }>;
+  };
+  about: {
+    eyebrow: string;
+    heading: string;
+    paragraphs: string[];
+    stats: Array<{ value: string; label: string }>;
+    images: string[];
+  };
+  services: {
+    eyebrow: string;
+    heading: string;
+    subhead: string;
+    items: ServiceItem[];
+  };
+  portfolio: {
+    eyebrow: string;
+    heading: string;
+    subhead: string;
+    filters: string[];
+    projects: PortfolioProject[];
+  };
+  process: {
+    eyebrow: string;
+    heading: string;
+    steps: ProcessStep[];
+  };
+  contact: {
+    eyebrow: string;
+    heading: string;
+    subhead: string;
+    projectTypes: string[];
+    formEndpoint: string;
+    info: {
+      address: "123 Industrial Way, Suite 100, Lagos, Nigeria",
+      email: "info@swanlakemachinery.com",
+      phone: "+234 (0) 800 123 4567",
+    },
+  };
+  interestModal: {
+    heading: string;
+    subhead: string;
+    formEndpoint: string;
+  };
+  footer: {
+    tagline: string;
+    copyrightName: string;
+  };
+}
+
+export const SITE_CONTENT: SiteContent = {
+  company: {
+    name: "Swanlake",
+    fullName: "Swanlake Machinery Ltd.",
+    phone: "",
+    phoneHref: "",
+    email: "joeyoung30@gmail.com",
+    address: "202 Japka Road, Effurun, Warri, Delta State",
+    hours: "",
+    social: {
+      instagram: "https://instagram.com/",
+      facebook: "https://facebook.com/",
+      linkedin: "https://linkedin.com/"
+    }
+  },
+
+  nav: [
+    { label: "Fleet", href: "#portfolio" },
+    { label: "Equipment", href: "#services" },
+    { label: "About", href: "#about" },
+    { label: "How it works", href: "#process" },
+    { label: "Contact", href: "#contact" }
+  ],
+
+  hero: {
+    videoSrc: "/hero-loop.mp4",
+    posterSrc: "/hero-poster.jpg",
+    eyebrow: "Effurun, Warri — Delta State",
+    headlinePrefix: "Heavy machinery,",
+    rotatingWords: [
+      "ready when your site is.",
+      "delivered directly on time.",
+      "serviced for peak power.",
+      "built for Niger Delta terrain."
+    ],
+    subhead: "Swanlake Machinery Ltd. leases excavators, cranes, generators, and site equipment across the Niger Delta region, with operators available on request.",
+    ctaPrimary: { label: "View equipment", href: "#portfolio" },
+    ctaSecondary: { label: "Request a lease", href: "#contact" },
+    stats: [
+      {
+        value: "250+", // Increased fleet count
+        label: "Machines in Fleet",
+      },
+      {
+        value: "15+", // Increased leasing experience
+        label: "Years Leasing Excellence",
+      },
+      {
+        value: "99%", // Or another high-performing operational stat
+        label: "Operational Uptime",
+      },
+    ],
+  },
+
+  about: {
+    eyebrow: "About us",
+    heading: "Machinery leasing built around your site schedule.",
+    paragraphs: [
+      "Swanlake Machinery Ltd. supplies and leases heavy equipment to construction, marine, and industrial sites across Effurun, Warri, and the wider Delta State region.",
+      "Every machine in our fleet is serviced and inspected before it leaves our yard, and we can supply a trained operator alongside the equipment if your crew needs one.",
+      "We work on short-term and long-term lease terms, and we'll tell you plainly which machine actually fits your job rather than whatever happens to be free that week."
+    ],
+    stats: [
+      { value: "—", label: "Machines in fleet" },
+      { value: "—", label: "Years in operation" },
+      { value: "—", label: "Sites served" },
+      { value: "—", label: "Operators on call" }
+    ],
+    images: [
+      "/images/about-1.jpg",
+      "/images/about-2.jpg",
+      "/images/about-3.jpg"
+    ]
+  },
+
+  services: {
+    eyebrow: "What we lease",
+    heading: "Equipment categories",
+    subhead: "Browse by category below, or tell us the job and we'll recommend the right machine. Every category can be leased with or without an operator.",
+    items: [
+      {
+        id: "excavators",
+        name: "Excavators",
+        summary: "Mini to standard-reach excavators for digging, grading, and demolition work.",
+        image: "/images/service-residential.jpg"
+      },
+      {
+        id: "cranes",
+        name: "Cranes & Lifting",
+        summary: "Mobile cranes and lifting equipment for structural, marine, and industrial loads.",
+        image: "/images/service-commercial.jpg"
+      },
+      {
+        id: "generators",
+        name: "Generators",
+        summary: "Site power generation, from small backup units to full-site prime power.",
+        image: "/images/service-renovation.jpg"
+      },
+      {
+        id: "loaders-graders",
+        name: "Loaders & Graders",
+        summary: "Wheel loaders and motor graders for site clearing, grading, and material handling.",
+        image: "/images/service-designbuild.jpg"
+      },
+      {
+        id: "compaction",
+        name: "Compaction Equipment",
+        summary: "Rollers and plate compactors for road base, foundation, and asphalt work.",
+        image: "/images/service-pm.jpg"
+      },
+      {
+        id: "operators",
+        name: "Operator-Supplied Leasing",
+        summary: "Any machine above, leased together with a qualified, insured operator.",
+        image: "/images/service-sitedev.jpg"
+      }
+    ]
+  },
+
+  portfolio: {
+    eyebrow: "Our fleet",
+    heading: "Equipment available now",
+    subhead: "A sample of machines currently in the fleet. Filter by category, or get in touch to check availability for a specific job date.",
+    filters: ["All", "Excavators", "Cranes", "Generators", "Loaders"],
+    projects: [
+      {
+        id: "proj-01",
+        title: "20-Tonne Excavator",
+        category: "Excavators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Standard-reach excavator suited to foundation digging and general earthworks.",
+        image: "/images/project-01.jpg"
+      },
+      {
+        id: "proj-02",
+        title: "Mobile Crane — 25T",
+        category: "Cranes",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Mobile crane for structural steel, precast, and marine lifting jobs.",
+        image: "/images/project-02.jpg"
+      },
+      {
+        id: "proj-03",
+        title: "Prime Power Generator — 150kVA",
+        category: "Generators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Diesel generator suited to full-site prime power on longer leases.",
+        image: "/images/project-03.jpg"
+      },
+      {
+        id: "proj-04",
+        title: "Mini Excavator — 3T",
+        category: "Excavators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Compact excavator for tight-access sites and smaller trenching jobs.",
+        image: "/images/project-04.jpg"
+      },
+      {
+        id: "proj-05",
+        title: "Wheel Loader — 3m³",
+        category: "Loaders",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Wheel loader for material handling, stockpiling, and site clearing.",
+        image: "/images/project-05.jpg"
+      },
+      {
+        id: "proj-06",
+        title: "Backup Generator — 60kVA",
+        category: "Generators",
+        location: "Effurun yard",
+        year: "Available",
+        summary: "Smaller backup unit suited to site offices and short-term power gaps.",
+        image: "/images/project-06.jpg"
+      }
+    ]
+  },
+
+  process: {
+    eyebrow: "How leasing works",
+    heading: "Four steps to get machinery on site",
+    steps: [
+      { title: "Tell us the job", detail: "Share the type of work, site access, and how long you'll need the machine for." },
+      { title: "We confirm the right machine", detail: "We match you to the right equipment and quote a lease rate, with or without an operator." },
+      { title: "Delivery & handover", detail: "The machine is delivered, inspected on-site with you, and handed over ready to run." },
+      { title: "Support through the lease", detail: "We handle servicing and breakdown support for the full length of your lease." }
+    ]
+  },
+
+  contact: {
+    eyebrow: "Get in touch",
+    heading: "Request a machine for your site",
+    subhead: "Tell us what you need and roughly when — we'll reply by email to confirm availability and rates.",
+    projectTypes: [
+      "Excavators",
+      "Cranes & Lifting",
+      "Generators",
+      "Loaders & Graders",
+      "Compaction Equipment",
+      "Operator-Supplied Leasing",
+      "Not sure yet"
+    ],
+    formEndpoint: "https://api.web3forms.com/submit",
+    info: {
+      address: "123 Industrial Way, Suite 100, Lagos, Nigeria",
+      email: "info@swanlakemachinery.com",
+      phone: "+234 (0) 800 123 4567"
+    }
+  },
+
+  interestModal: {
+    heading: "Express interest",
+    subhead: "Tell us a little about your job and which equipment you're asking about. We'll follow up by email.",
+    formEndpoint: "https://api.web3forms.com/submit"
+  },
+
+  footer: {
+    tagline: "Machinery leasing across the Niger Delta.",
+    copyrightName: "Swanlake Machinery Ltd."
+  }
+};
