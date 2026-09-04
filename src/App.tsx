@@ -150,111 +150,112 @@ Sent from: Swanlake Machinery Website
       }`}>
 
         {/* Header Navigation */}
-<<<<<<< HEAD
-       
-      
-
-       <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b backdrop-blur-xl ${
           theme === 'dark'
-            ? 'bg-[#14171B]/95 border-[#242A31] text-[#ECEDEF]'
-            : 'bg-white/95 border-[#C9C6BC] text-[#14171B]'
+            ? 'bg-[#14171B]/90 border-[#242A31] text-[#ECEDEF]'
+            : 'bg-white/90 border-[#C9C6BC] text-[#14171B]'
         }`}>
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 lg:h-24 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
 
-            {/* Brand / Logo */}
-            <a href="#top" className={`flex items-center gap-2 shrink min-w-0 rounded-sm cursor-pointer ${focusRing}`}>
-              <div
-                className="w-6 h-6 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
-              />
-              <span className={`font-['Barlow_Condensed',sans-serif] font-black text-lg sm:text-2xl lg:text-3xl uppercase tracking-wider truncate ${
-                theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-              }`}>
-                {SITE_CONTENT.company.name}
-              </span>
-            </a>
-
-            {/* Desktop Navigation */}
-            <nav className={`hidden md:flex items-center justify-center gap-4 lg:gap-8 text-xs lg:text-sm font-bold uppercase tracking-wider ${
-              theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-            }`}>
-              {SITE_CONTENT.nav.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap cursor-pointer ${focusRing}`}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-
-            {/* Header Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              {/* Theme Toggle */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className={`p-2 sm:px-3 sm:py-2 min-w-[40px] min-h-[40px] rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
-                  theme === 'dark'
-                    ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
-                    : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-                }`}
+              {/* Brand / Logo */}
+              <a 
+                href="#top" 
+                className={`flex items-center gap-2.5 shrink-0 rounded-sm cursor-pointer ${focusRing}`}
               >
-                {theme === 'dark' ? (
-                  <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-                <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-              </button>
-
-              {/* CTA Button */}
-              <a
-                href="#contact"
-                className={`hidden sm:inline-flex items-center py-2 px-4 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap cursor-pointer ${focusRing}`}
-                style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
-              >
-                Start Project
+                <div
+                  className="w-7 h-7 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
+                />
+                <span className={`font-['Barlow_Condensed',sans-serif] font-black text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                }`}>
+                  {SITE_CONTENT.company.name}
+                </span>
               </a>
 
-              {/* Mobile Hamburger Button */}
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`md:hidden p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
-                  theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
-                }`}
-                aria-label="Toggle menu"
-              >
-                <svg className="w-7 h-7 fill-current pointer-events-none" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
+              {/* Desktop Navigation */}
+              <nav className={`hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold uppercase tracking-wider ${
+                theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+              }`}>
+                {SITE_CONTENT.nav.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap cursor-pointer ${focusRing}`}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+
+              {/* Header Actions */}
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                {/* Theme Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label="Toggle theme"
+                  className={`px-3 py-2 h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
+                    theme === 'dark'
+                      ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B] hover:bg-[#242A31]'
+                      : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B] hover:bg-[#DCD8CF]'
+                  }`}
+                >
+                  {theme === 'dark' ? (
+                    <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                      <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+                    </svg>
                   ) : (
-                    <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
+                    <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                    </svg>
                   )}
-                </svg>
-              </button>
+                  <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                </button>
+
+                {/* CTA Button */}
+                <a
+                  href="#contact"
+                  className={`hidden sm:inline-flex items-center h-10 px-4 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap cursor-pointer ${focusRing}`}
+                  style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
+                >
+                  Start Project
+                </a>
+
+                {/* Mobile Hamburger Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className={`md:hidden h-10 w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
+                    theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
+                  }`}
+                  aria-label="Toggle menu"
+                >
+                  <svg className="w-6 h-6 fill-current pointer-events-none" viewBox="0 0 24 24">
+                    {isMobileMenuOpen ? (
+                      <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
+                    ) : (
+                      <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
+                    )}
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Mobile Menu Dropdown */}
           {isMobileMenuOpen && (
-            <div className={`md:hidden border-b px-6 py-6 space-y-4 shadow-2xl ${
+            <div className={`md:hidden border-t border-b px-6 py-6 space-y-4 shadow-2xl ${
               theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
             }`}>
-              <nav className="flex flex-col gap-3 text-lg font-black uppercase tracking-wider">
+              <nav className="flex flex-col gap-1 text-base font-black uppercase tracking-wider">
                 {SITE_CONTENT.nav.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="hover:text-[#E8590C] transition-colors py-2 cursor-pointer border-b border-gray-500/10 last:border-0"
+                    className="hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer"
                   >
                     {item.label}
                   </a>
@@ -270,164 +271,10 @@ Sent from: Swanlake Machinery Website
                 </a>
               </div>
             </div>
-=======
-        
-
-
-
-
-{/* Header Navigation */}
-<header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b backdrop-blur-xl ${
-  theme === 'dark'
-    ? 'bg-[#14171B]/90 border-[#242A31] text-[#ECEDEF]'
-    : 'bg-white/90 border-[#C9C6BC] text-[#14171B]'
-}`}>
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
-
-      {/* Brand / Logo */}
-      <a 
-        href="#top" 
-        className={`flex items-center gap-2.5 shrink-0 rounded-sm cursor-pointer ${focusRing}`}
-      >
-        <div
-          className="w-7 h-7 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
-        />
-        <span className={`font-['Barlow_Condensed',sans-serif] font-black text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider ${
-          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-        }`}>
-          {SITE_CONTENT.company.name}
-        </span>
-      </a>
-
-      {/* Desktop Navigation */}
-      <nav className={`hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold uppercase tracking-wider ${
-        theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-      }`}>
-        {SITE_CONTENT.nav.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap cursor-pointer ${focusRing}`}
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
-
-      {/* Header Actions */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Theme Toggle */}
-        <button
-          type="button"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          className={`px-3 py-2 h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
-            theme === 'dark'
-              ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B] hover:bg-[#242A31]'
-              : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B] hover:bg-[#DCD8CF]'
-          }`}
-        >
-          {theme === 'dark' ? (
-            <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-              <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-            </svg>
->>>>>>> 7d721fb
           )}
-          <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-        </button>
+        </header>
 
-        {/* CTA Button */}
-        <a
-          href="#contact"
-          className={`hidden sm:inline-flex items-center h-10 px-4 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap cursor-pointer ${focusRing}`}
-          style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
-        >
-          Start Project
-        </a>
-
-        {/* Mobile Hamburger Button */}
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={`md:hidden h-10 w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
-            theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
-          }`}
-          aria-label="Toggle menu"
-        >
-          <svg className="w-6 h-6 fill-current pointer-events-none" viewBox="0 0 24 24">
-            {isMobileMenuOpen ? (
-              <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
-            ) : (
-              <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
-            )}
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  {/* Mobile Menu Dropdown */}
-  {isMobileMenuOpen && (
-    <div className={`md:hidden border-t border-b px-6 py-6 space-y-4 shadow-2xl ${
-      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-    }`}>
-      <nav className="flex flex-col gap-1 text-base font-black uppercase tracking-wider">
-        {SITE_CONTENT.nav.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer"
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
-      <div className="pt-2 sm:hidden">
-        <a
-          href="#contact"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="w-full flex items-center justify-center py-3 bg-[#E8590C] text-[#14171B] font-black uppercase text-sm tracking-wider cursor-pointer"
-        >
-          Start Project
-        </a>
-      </div>
-    </div>
-  )}
-</header>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <main id="top" className="pt-24 sm:pt-28">
+        <main id="top" className="pt-16 sm:pt-20">
 
           {/* Hero Section */}
           <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
