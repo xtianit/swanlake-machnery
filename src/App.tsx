@@ -255,7 +255,7 @@ Sent from: Swanlake Machinery Website
         <main id="top" className="pt-20">
 
           {/* Hero Section */}
-          <section className="relative w-full h-auto pt-10 sm:pt-20 pb-16 lg:pb-28 px-5 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
+          <section className="relative w-full min-h-[85vh] flex flex-col justify-center pt-24 pb-20 sm:pt-20 lg:pb-28 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
               <video
                 autoPlay
@@ -291,7 +291,7 @@ Sent from: Swanlake Machinery Website
                   {SITE_CONTENT.hero.eyebrow}
                 </div>
 
-                <h1 className="font-['Barlow_Condensed',sans-serif] text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.15] text-[#ECEDEF]">
+                <h1 className="font-['Barlow_Condensed',sans-serif] text-5xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.15] text-[#ECEDEF]">
                   {SITE_CONTENT.hero.headlinePrefix}{" "}
                   <span className="inline-block overflow-hidden align-top h-[1.25em]">
                     <span
@@ -336,7 +336,7 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* About Section */}
-          <section id="about" className={`py-16 sm:py-24 border-t ${
+          <section id="about" className={`py-24 sm:py-28 border-t ${
             theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
@@ -345,12 +345,12 @@ Sent from: Swanlake Machinery Website
                   <span className="text-[#E8590C] font-semibold text-xs sm:text-sm border-l-2 border-[#E8590C] pl-3 block">
                     {SITE_CONTENT.about.eyebrow}
                   </span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-5xl font-black uppercase tracking-tight mt-3 ${
+                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-4xl sm:text-5xl font-black uppercase tracking-tight mt-3 ${
                     theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                   }`}>
                     {SITE_CONTENT.about.heading}
                   </h2>
-                  <div className={`space-y-4 text-sm sm:text-base leading-relaxed mt-5 sm:mt-6 font-normal ${
+                  <div className={`space-y-6 text-sm sm:text-base leading-relaxed mt-5 sm:mt-6 font-normal ${
                     theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
                   }`}>
                     {SITE_CONTENT.about.paragraphs.map((p, i) => (
@@ -359,7 +359,7 @@ Sent from: Swanlake Machinery Website
                   </div>
                 </div>
                 <div className="space-y-6">
-                  <div className={`relative border shadow-2xl overflow-hidden h-72 sm:h-96 w-full ${
+                  <div className={`relative border shadow-2xl overflow-hidden h-80 sm:h-96 w-full ${
                     theme === 'dark' ? 'border-[#242A31] bg-[#14171B]' : 'border-[#C9C6BC] bg-[#F3F2EE]'
                   }`}>
                     {SITE_CONTENT.about.images.map((imgUrl, index) => (
@@ -410,13 +410,13 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Equipment Categories / Services Section */}
-          <section id="services" className={`py-16 sm:py-24 border-t ${
+          <section id="services" className={`py-24 sm:py-28 border-t ${
             theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
                 <span className="text-[#E8590C] font-semibold text-xs sm:text-sm">{SITE_CONTENT.services.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
+                <h2 className={`font-['Barlow_Condensed',sans-serif] text-4xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
                   theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                 }`}>{SITE_CONTENT.services.heading}</h2>
                 <p className={`text-sm sm:text-base mt-4 leading-relaxed ${
@@ -424,7 +424,7 @@ Sent from: Swanlake Machinery Website
                 }`}>{SITE_CONTENT.services.subhead}</p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-8">
                 {SITE_CONTENT.services.items.map((item) => (
                   <div
                     key={item.id}
@@ -436,7 +436,7 @@ Sent from: Swanlake Machinery Website
                   >
                     <span className="absolute top-0 left-0 h-[3px] w-0 bg-[#E8590C] transition-all duration-300 group-hover:w-full z-20" />
                     <div>
-                      <div className="relative overflow-hidden h-60 sm:h-64">
+                      <div className="relative overflow-hidden h-72 sm:h-64">
                         <img
                           src={item.image}
                           alt={item.name}
@@ -447,7 +447,7 @@ Sent from: Swanlake Machinery Website
                           Available
                         </span>
                       </div>
-                      <div className="p-6 sm:p-7">
+                      <div className="p-7 sm:p-7">
                         <h3 className={`font-['Barlow_Condensed',sans-serif] text-xl sm:text-2xl font-bold uppercase group-hover:text-[#E8590C] transition-colors duration-300 ${
                           theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                         }`}>
@@ -460,7 +460,7 @@ Sent from: Swanlake Machinery Website
                         </p>
                       </div>
                     </div>
-                    <div className="p-6 sm:p-7 pt-0">
+                    <div className="p-7 sm:p-7 pt-0">
                       <button
                         onClick={() => setSelectedService(item)}
                         className={`w-full py-3.5 border text-[#E8590C] font-bold uppercase text-xs sm:text-sm tracking-wider hover:bg-[#E8590C] hover:text-[#14171B] hover:border-[#E8590C] transition-colors duration-300 text-center ${focusRing} ${
@@ -477,13 +477,13 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Portfolio Section */}
-          <section id="portfolio" className={`py-16 sm:py-24 border-t ${
+          <section id="portfolio" className={`py-24 sm:py-28 border-t ${
             theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
                 <span className="text-[#E8590C] font-semibold text-xs sm:text-sm">{SITE_CONTENT.portfolio.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
+                <h2 className={`font-['Barlow_Condensed',sans-serif] text-4xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
                   theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                 }`}>{SITE_CONTENT.portfolio.heading}</h2>
                 <p className={`text-sm sm:text-base mt-4 leading-relaxed ${
@@ -509,12 +509,12 @@ Sent from: Swanlake Machinery Website
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-8">
                 {filteredProjects.map((project) => (
                   <div key={project.id} className={`border overflow-hidden group transition-colors ${
                     theme === 'dark' ? 'bg-[#14171B] border-[#242A31] hover:border-[#333B44]' : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
                   }`}>
-                    <div className="h-56 sm:h-60 overflow-hidden relative">
+                    <div className="h-72 sm:h-60 overflow-hidden relative">
                       <img
                         src={project.image}
                         alt={project.title}
@@ -524,7 +524,7 @@ Sent from: Swanlake Machinery Website
                         {project.category}
                       </div>
                     </div>
-                    <div className="p-6 sm:p-7">
+                    <div className="p-7 sm:p-7">
                       <div className="flex justify-between items-start">
                         <h3 className={`font-['Barlow_Condensed',sans-serif] text-lg sm:text-xl font-bold uppercase ${
                           theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
@@ -550,13 +550,13 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Process Section */}
-          <section id="process" className={`py-16 sm:py-24 border-t ${
+          <section id="process" className={`py-24 sm:py-28 border-t ${
             theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
                 <span className="text-[#E8590C] font-semibold text-xs sm:text-sm">{SITE_CONTENT.process.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
+                <h2 className={`font-['Barlow_Condensed',sans-serif] text-4xl sm:text-5xl font-black uppercase tracking-tight mt-2 ${
                   theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                 }`}>{SITE_CONTENT.process.heading}</h2>
               </div>
@@ -590,14 +590,14 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Contact Section */}
-          <section id="contact" className={`py-16 sm:py-24 border-t ${
+          <section id="contact" className={`py-24 sm:py-28 border-t ${
             theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
                 <div className="lg:col-span-5">
                   <span className="text-[#E8590C] font-semibold text-xs sm:text-sm border-l-2 border-[#E8590C] pl-3 block">{SITE_CONTENT.contact.eyebrow}</span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-5xl font-black uppercase tracking-tight mt-3 ${
+                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-4xl sm:text-5xl font-black uppercase tracking-tight mt-3 ${
                     theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                   }`}>{SITE_CONTENT.contact.heading}</h2>
                   <p className={`text-sm sm:text-base leading-relaxed mt-4 ${
