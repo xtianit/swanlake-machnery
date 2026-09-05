@@ -1,57 +1,169 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import SplashScreen from './components/SplashScreen';
 import { SITE_CONTENT, type ServiceItem } from './data/content';
-import { InterestModal } from './components/InterestModal';
 import { AnimatedMetrics } from './components/AnimatedMetrics';
+
+// Code-split the modal for lazy loading
+const InterestModal = lazy(() =>
+  import('./components/InterestModal').then((m) => ({ default: m.InterestModal }))
+);
+
+// Constants
+const FOCUS_RING =
+  'focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8590C]';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FormStatus =
+  | { state: 'idle' }
+  | { state: 'submitting' }
+  | { state: 'success' }
+  | { state: 'error'; message: string };
+
+// Custom Hook: Accessibility - Reduced Motion
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return reduced;
+}
+
+// Custom Hook: Theme Toggle Management
+function useTheme() {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    try {
+      return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        // Handle private browsing or restricted storage
+      }
+      return next;
+    });
+  }, []);
+
+  return { theme, toggleTheme };
+}
+
+// Custom Hook: Scroll Metrics & Active Section Spy
+function useScrollSpy(sectionIds: string[]) {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
+
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const measure = () => {
+      const scrollY = window.scrollY;
+      const doc = document.documentElement;
+      const maxScroll = doc.scrollHeight - window.innerHeight;
+
+      setIsScrolled(scrollY > 40);
+      setScrollProgress(maxScroll > 0 ? Math.min(100, (scrollY / maxScroll) * 100) : 0);
+      setShowBackToTop(scrollY > window.innerHeight * 0.6);
+
+      const headerOffset = 140;
+      let current = '';
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop - headerOffset <= scrollY) {
+          current = id;
+        }
+      }
+      setActiveSection(current);
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [sectionIds]);
+
+  return { isScrolled, scrollProgress, showBackToTop, activeSection };
+}
 
 export default function App() {
   const [loading, setLoading] = useState<boolean>(true);
-
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
-  });
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
+  const { theme, toggleTheme } = useTheme();
 
   const [activeFilter, setActiveFilter] = useState<string>('All');
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
-  const [contactSubmitted, setContactSubmitted] = useState<boolean>(false);
-  const [contactSubmitting, setContactSubmitting] = useState<boolean>(false);
-  const [contactError, setContactError] = useState<string | null>(null);
+  const [formStatus, setFormStatus] = useState<FormStatus>({ state: 'idle' });
+  const [canSubmit, setCanSubmit] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const [wordIndex, setWordIndex] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const [currentAboutImage, setCurrentAboutImage] = useState<number>(0);
 
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const emailHintRef = useRef<HTMLSpanElement>(null);
+  const charCountRef = useRef<HTMLSpanElement>(null);
+
+  const sectionIds = useMemo(
+    () => SITE_CONTENT.nav.map((item) => item.href.replace('#', '')).filter(Boolean),
+    []
+  );
+
+  const { isScrolled, scrollProgress, showBackToTop, activeSection } = useScrollSpy(sectionIds);
+
+  // Initial Splash Screen Timer
   useEffect(() => {
-    const splashTimer = setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+    const splashTimer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(splashTimer);
   }, []);
 
+  // Hero Rotating Words Timer
   useEffect(() => {
     const words = SITE_CONTENT.hero.rotatingWords;
     if (!words || words.length <= 1) return;
 
+    // let animTimeout: NodeJS.Timeout;
+    let animTimeout: ReturnType<typeof setTimeout>;
     const interval = setInterval(() => {
       setIsAnimating(true);
-      setTimeout(() => {
+      animTimeout = setTimeout(() => {
         setWordIndex((prev) => (prev + 1) % words.length);
         setIsAnimating(false);
       }, 700);
     }, 7500);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(animTimeout);
+    };
   }, []);
 
-  const [currentAboutImage, setCurrentAboutImage] = useState<number>(0);
-
+  // About Section Slideshow Timer
   useEffect(() => {
     const images = SITE_CONTENT.about.images;
     if (!images || images.length <= 1) return;
@@ -63,14 +175,69 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const filteredProjects = activeFilter === 'All'
-    ? SITE_CONTENT.portfolio.projects
-    : SITE_CONTENT.portfolio.projects.filter(p => p.category === activeFilter);
+  // Autoplay Hero Video
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.play().catch((err) => {
+      console.warn('Autoplay deferred by browser policy:', err);
+    });
+  }, []);
 
-  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Body Scroll Lock & Esc Key for Mobile Menu
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+    const onResize = () => {
+      if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('resize', onResize);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [isMobileMenuOpen]);
+
+  // Filtered Projects Logic
+  const filteredProjects = useMemo(
+    () =>
+      activeFilter === 'All'
+        ? SITE_CONTENT.portfolio.projects
+        : SITE_CONTENT.portfolio.projects.filter((p) => p.category === activeFilter),
+    [activeFilter]
+  );
+
+  // Form Input Validation Handler
+  const handleFormInput = useCallback(() => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const email = (form.elements.namedItem('email') as HTMLInputElement | null)?.value ?? '';
+    if (emailHintRef.current) {
+      const showHint = email.length > 0 && !EMAIL_PATTERN.test(email);
+      emailHintRef.current.textContent = showHint ? 'Enter a valid email address' : '';
+    }
+
+    const message = (form.elements.namedItem('message') as HTMLTextAreaElement | null)?.value ?? '';
+    if (charCountRef.current) {
+      charCountRef.current.textContent = `${message.length}/500`;
+    }
+
+    setCanSubmit(form.checkValidity() && EMAIL_PATTERN.test(email));
+  }, []);
+
+  // Contact Form Submission Handler
+  const handleContactSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setContactSubmitting(true);
-    setContactError(null);
+    setFormStatus({ state: 'submitting' });
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
@@ -94,38 +261,55 @@ Sent from: Swanlake Machinery Website
   `.trim();
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         body: JSON.stringify({
-          access_key: "710745a1-96b8-4988-800f-776ca3e7849c",
+          access_key: '710745a1-96b8-4988-800f-776ca3e7849c',
           from_name: `${name} (Swanlake Inquiry)`,
           subject: `New Equipment Request: ${category} - ${name}`,
           replyto: email,
           message: messageBody,
-        })
+        }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setContactSubmitted(true);
-        setContactError(null);
+        setFormStatus({ state: 'success' });
       } else {
-        setContactError(result.message || 'Submission failed. Please check your Access Key.');
+        setFormStatus({
+          state: 'error',
+          message: result.message || 'Submission failed. Please check your Access Key.',
+        });
       }
     } catch (err) {
-      console.error("Form error:", err);
-      setContactError('An error occurred. Please try again.');
-    } finally {
-      setContactSubmitting(false);
+      console.error('Form error:', err);
+      setFormStatus({ state: 'error', message: 'An error occurred. Please try again.' });
     }
-  };
+  }, []);
 
-  const focusRing = "focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E8590C]";
+  const resetForm = useCallback(() => {
+    setFormStatus({ state: 'idle' });
+    setCanSubmit(false);
+    formRef.current?.reset();
+  }, []);
+
+  // Pointer Light Effect Handler
+  const handleHeroPointerMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (prefersReducedMotion || !heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      heroRef.current.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+      heroRef.current.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    },
+    [prefersReducedMotion]
+  );
+
+  const closeSelectedService = useCallback(() => setSelectedService(null), []);
 
   return (
     <HelmetProvider>
@@ -141,52 +325,87 @@ Sent from: Swanlake Machinery Website
           content="Swanlake Machinery, heavy equipment rental, machinery leasing, fleet management, construction machinery"
         />
         <link rel="canonical" href="https://swanlakemachinery.com" />
+        <link rel="preconnect" href="https://api.web3forms.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <style>{`
+          @keyframes swanlake-fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .swanlake-fade-in { animation: swanlake-fade-in 0.4s ease-out; }
+          @media (prefers-reduced-motion: reduce) {
+            .swanlake-fade-in { animation: none; }
+          }
+        `}</style>
       </Helmet>
 
       {loading && <SplashScreen />}
 
-      <div className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#E8590C] selection:text-[#14171B] ${
-        theme === 'dark' ? 'bg-[#14171B] text-[#ECEDEF]' : 'bg-[#F3F2EE] text-[#14171B]'
-      }`}>
-
+      <div
+        className={`min-h-screen font-sans transition-colors duration-300 selection:bg-[#E8590C] selection:text-[#14171B] ${
+          theme === 'dark' ? 'bg-[#14171B] text-[#ECEDEF]' : 'bg-[#F3F2EE] text-[#14171B]'
+        }`}
+      >
         {/* Header Navigation */}
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 border-b backdrop-blur-xl ${
-          theme === 'dark'
-            ? 'bg-[#14171B]/90 border-[#242A31] text-[#ECEDEF]'
-            : 'bg-white/90 border-[#C9C6BC] text-[#14171B]'
-        }`}>
+        <header
+          className={`fixed top-0 left-0 right-0 z-50 transition-[box-shadow] duration-300 border-b backdrop-blur-xl ${
+            theme === 'dark'
+              ? 'bg-[#14171B]/90 border-[#242A31] text-[#ECEDEF]'
+              : 'bg-white/90 border-[#C9C6BC] text-[#14171B]'
+          } ${isScrolled ? 'shadow-[0_10px_30px_rgba(0,0,0,0.25)]' : ''}`}
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
-
+            <div
+              className={`flex items-center justify-between gap-2 sm:gap-4 transition-[height] duration-300 ${
+                isScrolled ? 'h-14 sm:h-16' : 'h-16 sm:h-20'
+              }`}
+            >
               {/* Brand / Logo */}
-              <a 
-                href="#top" 
-                className={`flex items-center gap-2 sm:gap-2.5 min-w-0 shrink rounded-sm cursor-pointer ${focusRing}`}
+              <a
+                href="#top"
+                className={`flex items-center gap-2 sm:gap-2.5 min-w-0 shrink rounded-sm cursor-pointer ${FOCUS_RING}`}
               >
                 <div
                   className="w-6 h-6 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
                 />
-                <span className={`font-['Barlow_Condensed',sans-serif] font-black text-base xs:text-lg sm:text-2xl lg:text-3xl uppercase tracking-normal xs:tracking-wider truncate ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>
+                <span
+                  className={`font-['Barlow_Condensed',sans-serif] font-black text-base xs:text-lg sm:text-2xl lg:text-3xl uppercase tracking-normal xs:tracking-wider truncate ${
+                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                  }`}
+                >
                   {SITE_CONTENT.company.name}
                 </span>
               </a>
 
               {/* Desktop Navigation */}
-              <nav className={`hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold uppercase tracking-wider ${
-                theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-              }`}>
-                {SITE_CONTENT.nav.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className={`hover:text-[#E8590C] transition-colors relative py-1 whitespace-nowrap cursor-pointer ${focusRing}`}
-                  >
-                    {item.label}
-                  </a>
-                ))}
+              <nav
+                aria-label="Main Navigation"
+                className={`hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-bold uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+                }`}
+              >
+                {SITE_CONTENT.nav.map((item) => {
+                  const id = item.href.replace('#', '');
+                  const isActive = activeSection === id;
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      aria-current={isActive ? 'true' : undefined}
+                      className={`relative py-1 whitespace-nowrap transition-colors cursor-pointer ${FOCUS_RING} ${
+                        isActive ? 'text-[#E8590C]' : 'hover:text-[#E8590C]'
+                      }`}
+                    >
+                      {item.label}
+                      <span
+                        className={`absolute left-0 -bottom-1 h-[2px] bg-[#E8590C] transition-all duration-300 ${
+                          isActive ? 'w-full' : 'w-0'
+                        }`}
+                      />
+                    </a>
+                  );
+                })}
               </nav>
 
               {/* Header Actions */}
@@ -195,19 +414,25 @@ Sent from: Swanlake Machinery Website
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  aria-label="Toggle theme"
-                  className={`px-2.5 sm:px-3 py-2 h-9 sm:h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
+                  aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                  className={`px-2.5 sm:px-3 py-2 h-9 sm:h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${FOCUS_RING} ${
                     theme === 'dark'
                       ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B] hover:bg-[#242A31]'
                       : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B] hover:bg-[#DCD8CF]'
                   }`}
                 >
                   {theme === 'dark' ? (
-                    <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                    <svg
+                      className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none"
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                    <svg
+                      className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none"
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                     </svg>
                   )}
@@ -217,7 +442,7 @@ Sent from: Swanlake Machinery Website
                 {/* CTA Button */}
                 <a
                   href="#contact"
-                  className={`hidden sm:inline-flex items-center h-10 px-4 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap cursor-pointer ${focusRing}`}
+                  className={`hidden sm:inline-flex items-center h-10 px-4 bg-[#E8590C] text-[#14171B] font-black uppercase text-xs tracking-wider hover:bg-[#FF7A29] transition-colors whitespace-nowrap cursor-pointer ${FOCUS_RING}`}
                   style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
                 >
                   Start Project
@@ -227,16 +452,27 @@ Sent from: Swanlake Machinery Website
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className={`md:hidden h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
+                  className={`md:hidden h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${FOCUS_RING} ${
                     theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
                   }`}
-                  aria-label="Toggle menu"
+                  aria-label="Toggle navigation menu"
+                  aria-expanded={isMobileMenuOpen}
                 >
-                  <svg className="w-6 h-6 fill-current pointer-events-none transition-transform duration-300" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 fill-current pointer-events-none transition-transform duration-300"
+                    viewBox="0 0 24 24"
+                  >
                     {isMobileMenuOpen ? (
-                      <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z"
+                      />
                     ) : (
-                      <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
+                      <path
+                        fillRule="evenodd"
+                        d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z"
+                      />
                     )}
                   </svg>
                 </button>
@@ -244,27 +480,45 @@ Sent from: Swanlake Machinery Website
             </div>
           </div>
 
-          {/* Animated Mobile Menu Wrapper */}
-          <div className={`grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-          }`}>
+          {/* Scroll progress bar */}
+          <div className={`h-[2px] w-full ${theme === 'dark' ? 'bg-white/5' : 'bg-black/10'}`}>
+            <div
+              className="h-full bg-[#E8590C] transition-[width] duration-150 ease-out"
+              style={{ width: `${scrollProgress}%` }}
+            />
+          </div>
+
+          {/* Animated Mobile Menu */}
+          <div
+            className={`grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out ${
+              isMobileMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+            }`}
+          >
             <div className="overflow-hidden">
-              <div className={`border-t border-b px-6 py-6 space-y-4 shadow-2xl transition-all duration-300 ease-in-out ${
-                isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
-              } ${
-                theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-              }`}>
-                <nav className="flex flex-col gap-1 text-base font-black uppercase tracking-wider">
-                  {SITE_CONTENT.nav.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer"
-                    >
-                      {item.label}
-                    </a>
-                  ))}
+              <div
+                className={`border-t border-b px-6 py-6 space-y-4 shadow-2xl transition-all duration-300 ease-in-out ${
+                  isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+                } ${theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'}`}
+              >
+                <nav
+                  aria-label="Mobile Navigation"
+                  className="flex flex-col gap-1 text-base font-black uppercase tracking-wider"
+                >
+                  {SITE_CONTENT.nav.map((item) => {
+                    const isActive = activeSection === item.href.replace('#', '');
+                    return (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer ${
+                          isActive ? 'text-[#E8590C]' : ''
+                        }`}
+                      >
+                        {item.label}
+                      </a>
+                    );
+                  })}
                 </nav>
                 <div className="pt-2 sm:hidden">
                   <a
@@ -281,24 +535,24 @@ Sent from: Swanlake Machinery Website
         </header>
 
         <main id="top" className="pt-16 sm:pt-20">
-
           {/* Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
+          <section
+            ref={heroRef}
+            onMouseMove={handleHeroPointerMove}
+            style={{ '--mx': '50%', '--my': '30%' } as React.CSSProperties}
+            className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]"
+          >
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
               <video
+                ref={videoRef}
                 autoPlay
                 loop
                 muted
                 playsInline
                 preload="auto"
-                ref={(videoRef) => {
-                  if (videoRef) {
-                    videoRef.muted = true;
-                    videoRef.play().catch((err) => {
-                      console.warn("Autoplay deferred by browser policy:", err);
-                    });
-                  }
-                }}
+                aria-hidden="true"
+                tabIndex={-1}
+                disablePictureInPicture
                 className="w-full h-full object-cover scale-105 motion-reduce:hidden"
               >
                 <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
@@ -307,6 +561,15 @@ Sent from: Swanlake Machinery Website
 
               <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/70 to-[#14171B]/90" />
               <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
+              {!prefersReducedMotion && (
+                <div
+                  className="absolute inset-0 mix-blend-screen pointer-events-none"
+                  style={{
+                    background:
+                      'radial-gradient(360px circle at var(--mx) var(--my), rgba(232,89,12,0.35), transparent 70%)',
+                  }}
+                />
+              )}
             </div>
 
             <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-start">
@@ -320,13 +583,11 @@ Sent from: Swanlake Machinery Website
                 </div>
 
                 <h1 className="font-['Barlow_Condensed',sans-serif] text-7xl sm:text-8xl lg:text-9xl font-black uppercase tracking-tight leading-[1.05] text-[#ECEDEF]">
-                  {SITE_CONTENT.hero.headlinePrefix}{" "}
+                  {SITE_CONTENT.hero.headlinePrefix}{' '}
                   <span className="inline-block overflow-hidden align-top h-[1.25em]">
                     <span
                       className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none ${
-                        isAnimating
-                          ? '-translate-y-full opacity-0'
-                          : 'translate-y-0 opacity-100'
+                        isAnimating ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
                       }`}
                     >
                       {SITE_CONTENT.hero.rotatingWords[wordIndex]}
@@ -341,14 +602,14 @@ Sent from: Swanlake Machinery Website
                 <div className="flex flex-col sm:flex-row gap-6 mt-12">
                   <a
                     href={SITE_CONTENT.hero.ctaPrimary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${focusRing}`}
+                    className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${FOCUS_RING}`}
                     style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
                   >
                     {SITE_CONTENT.hero.ctaPrimary.label}
                   </a>
                   <a
                     href={SITE_CONTENT.hero.ctaSecondary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 border border-[#333B44] bg-[#1B1F24]/50 backdrop-blur-sm text-[#ECEDEF] font-bold uppercase text-base sm:text-lg tracking-wider hover:border-[#E8590C] hover:text-[#E8590C] transition-colors duration-300 ${focusRing}`}
+                    className={`w-full sm:w-auto text-center py-6 px-10 border border-[#333B44] bg-[#1B1F24]/50 backdrop-blur-sm text-[#ECEDEF] font-bold uppercase text-base sm:text-lg tracking-wider hover:border-[#E8590C] hover:text-[#E8590C] transition-colors duration-300 ${FOCUS_RING}`}
                   >
                     {SITE_CONTENT.hero.ctaSecondary.label}
                   </a>
@@ -364,39 +625,51 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* About Section */}
-          <section id="about" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
+          <section
+            id="about"
+            className={`py-28 sm:py-36 border-t scroll-mt-16 sm:scroll-mt-20 ${
+              theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
+            }`}
+          >
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-16 items-center">
                 <div>
                   <span className="text-[#E8590C] font-bold text-base sm:text-lg border-l-2 border-[#E8590C] pl-4 block">
                     {SITE_CONTENT.about.eyebrow}
                   </span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                  }`}>
+                  <h2
+                    className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
+                      theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                    }`}
+                  >
                     {SITE_CONTENT.about.heading}
                   </h2>
-                  <div className={`space-y-6 text-lg sm:text-xl leading-relaxed mt-8 font-normal ${
-                    theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-                  }`}>
+                  <div
+                    className={`space-y-6 text-lg sm:text-xl leading-relaxed mt-8 font-normal ${
+                      theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+                    }`}
+                  >
                     {SITE_CONTENT.about.paragraphs.map((p, i) => (
                       <p key={i}>{p}</p>
                     ))}
                   </div>
                 </div>
                 <div className="space-y-8">
-                  <div className={`relative border shadow-2xl overflow-hidden h-96 sm:h-[420px] w-full ${
-                    theme === 'dark' ? 'border-[#242A31] bg-[#14171B]' : 'border-[#C9C6BC] bg-[#F3F2EE]'
-                  }`}>
+                  <div
+                    className={`relative border shadow-2xl overflow-hidden h-96 sm:h-[420px] w-full ${
+                      theme === 'dark' ? 'border-[#242A31] bg-[#14171B]' : 'border-[#C9C6BC] bg-[#F3F2EE]'
+                    }`}
+                  >
                     {SITE_CONTENT.about.images.map((imgUrl, index) => (
                       <img
                         key={imgUrl}
                         src={imgUrl}
-                        alt={`${SITE_CONTENT.company.fullName} machine ${index + 1}`}
+                        alt={`${SITE_CONTENT.company.fullName} machine preview ${index + 1}`}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
                         onError={(e) => {
-                          e.currentTarget.src = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80";
+                          e.currentTarget.src =
+                            'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80';
                         }}
                         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out motion-reduce:transition-none ${
                           index === currentAboutImage ? 'opacity-100 z-10' : 'opacity-0 z-0'
@@ -409,7 +682,7 @@ Sent from: Swanlake Machinery Website
                         <button
                           key={index}
                           onClick={() => setCurrentAboutImage(index)}
-                          className={`h-3.5 transition-all rounded-sm ${focusRing} ${
+                          className={`h-3.5 transition-all rounded-sm ${FOCUS_RING} ${
                             index === currentAboutImage ? 'w-12 bg-[#E8590C]' : 'w-3.5 bg-white/40'
                           }`}
                           aria-label={`Go to slide ${index + 1}`}
@@ -418,15 +691,21 @@ Sent from: Swanlake Machinery Website
                     </div>
                   </div>
 
-                  <div className={`p-8 border grid grid-cols-2 lg:grid-cols-4 gap-6 text-center ${
-                    theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC] shadow-sm'
-                  }`}>
+                  <div
+                    className={`p-8 border grid grid-cols-2 lg:grid-cols-4 gap-6 text-center ${
+                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC] shadow-sm'
+                    }`}
+                  >
                     {SITE_CONTENT.about.stats.map((s, i) => (
                       <div key={i} className="p-3">
-                        <span className="block text-4xl sm:text-5xl font-['Barlow_Condensed',sans-serif] font-black text-[#E8590C]">{s.value}</span>
-                        <span className={`text-sm sm:text-base font-bold uppercase tracking-wider mt-2 block ${
-                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#6B7178]'
-                        }`}>
+                        <span className="block text-4xl sm:text-5xl font-['Barlow_Condensed',sans-serif] font-black text-[#E8590C]">
+                          {s.value}
+                        </span>
+                        <span
+                          className={`text-sm sm:text-base font-bold uppercase tracking-wider mt-2 block ${
+                            theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#6B7178]'
+                          }`}
+                        >
                           {s.label}
                         </span>
                       </div>
@@ -437,19 +716,32 @@ Sent from: Swanlake Machinery Website
             </div>
           </section>
 
-          {/* Equipment Categories / Services Section */}
-          <section id="services" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-          }`}>
+          {/* Services Section */}
+          <section
+            id="services"
+            className={`py-28 sm:py-36 border-t scroll-mt-16 sm:scroll-mt-20 ${
+              theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+            }`}
+          >
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.services.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.services.heading}</h2>
-                <p className={`text-lg sm:text-xl mt-6 leading-relaxed ${
-                  theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                }`}>{SITE_CONTENT.services.subhead}</p>
+                <span className="text-[#E8590C] font-bold text-base sm:text-lg">
+                  {SITE_CONTENT.services.eyebrow}
+                </span>
+                <h2
+                  className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
+                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                  }`}
+                >
+                  {SITE_CONTENT.services.heading}
+                </h2>
+                <p
+                  className={`text-lg sm:text-xl mt-6 leading-relaxed ${
+                    theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
+                  }`}
+                >
+                  {SITE_CONTENT.services.subhead}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-14 lg:gap-12">
@@ -468,6 +760,8 @@ Sent from: Swanlake Machinery Website
                         <img
                           src={item.image}
                           alt={item.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out motion-reduce:transform-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/40 to-transparent" />
@@ -476,14 +770,18 @@ Sent from: Swanlake Machinery Website
                         </span>
                       </div>
                       <div className="p-8 sm:p-10">
-                        <h3 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase group-hover:text-[#E8590C] transition-colors duration-300 ${
-                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                        }`}>
+                        <h3
+                          className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase group-hover:text-[#E8590C] transition-colors duration-300 ${
+                            theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                          }`}
+                        >
                           {item.name}
                         </h3>
-                        <p className={`text-lg mt-5 leading-relaxed ${
-                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                        }`}>
+                        <p
+                          className={`text-lg mt-5 leading-relaxed ${
+                            theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
+                          }`}
+                        >
                           {item.summary}
                         </p>
                       </div>
@@ -491,7 +789,7 @@ Sent from: Swanlake Machinery Website
                     <div className="p-8 sm:p-10 pt-0">
                       <button
                         onClick={() => setSelectedService(item)}
-                        className={`w-full py-5 border text-[#E8590C] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#E8590C] hover:text-[#14171B] hover:border-[#E8590C] transition-colors duration-300 text-center ${focusRing} ${
+                        className={`w-full py-5 border text-[#E8590C] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#E8590C] hover:text-[#14171B] hover:border-[#E8590C] transition-colors duration-300 text-center ${FOCUS_RING} ${
                           theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
                         }`}
                       >
@@ -505,18 +803,31 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Portfolio Section */}
-          <section id="portfolio" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
+          <section
+            id="portfolio"
+            className={`py-28 sm:py-36 border-t scroll-mt-16 sm:scroll-mt-20 ${
+              theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
+            }`}
+          >
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.portfolio.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.portfolio.heading}</h2>
-                <p className={`text-lg sm:text-xl mt-6 leading-relaxed ${
-                  theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                }`}>{SITE_CONTENT.portfolio.subhead}</p>
+                <span className="text-[#E8590C] font-bold text-base sm:text-lg">
+                  {SITE_CONTENT.portfolio.eyebrow}
+                </span>
+                <h2
+                  className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
+                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                  }`}
+                >
+                  {SITE_CONTENT.portfolio.heading}
+                </h2>
+                <p
+                  className={`text-lg sm:text-xl mt-6 leading-relaxed ${
+                    theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
+                  }`}
+                >
+                  {SITE_CONTENT.portfolio.subhead}
+                </p>
               </div>
 
               <div className="flex flex-wrap justify-center gap-4 mb-14 sm:mb-20">
@@ -524,7 +835,8 @@ Sent from: Swanlake Machinery Website
                   <button
                     key={category}
                     onClick={() => setActiveFilter(category)}
-                    className={`px-7 sm:px-8 py-4 text-sm sm:text-base font-bold uppercase tracking-wider border transition-colors ${focusRing} ${
+                    aria-pressed={activeFilter === category}
+                    className={`px-7 sm:px-8 py-4 text-sm sm:text-base font-bold uppercase tracking-wider border transition-colors ${FOCUS_RING} ${
                       activeFilter === category
                         ? 'bg-[#E8590C] text-[#14171B] border-[#E8590C]'
                         : theme === 'dark'
@@ -537,15 +849,25 @@ Sent from: Swanlake Machinery Website
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-14 lg:gap-12">
+              <div
+                key={activeFilter}
+                className="grid grid-cols-1 lg:grid-cols-3 gap-14 lg:gap-12 swanlake-fade-in"
+              >
                 {filteredProjects.map((project) => (
-                  <div key={project.id} className={`border overflow-hidden group transition-colors ${
-                    theme === 'dark' ? 'bg-[#14171B] border-[#242A31] hover:border-[#333B44]' : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
-                  }`}>
+                  <div
+                    key={project.id}
+                    className={`border overflow-hidden group transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-[#14171B] border-[#242A31] hover:border-[#333B44]'
+                        : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
+                    }`}
+                  >
                     <div className="h-80 sm:h-72 overflow-hidden relative">
                       <img
                         src={project.image}
                         alt={project.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:brightness-110 transition-[filter] duration-500 motion-reduce:transition-none"
                       />
                       <div className="absolute top-5 left-5 bg-[#E8590C] text-[#14171B] text-xs font-black uppercase tracking-widest px-4 py-2">
@@ -554,21 +876,33 @@ Sent from: Swanlake Machinery Website
                     </div>
                     <div className="p-8 sm:p-10">
                       <div className="flex justify-between items-start gap-4">
-                        <h3 className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase ${
-                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                        }`}>{project.title}</h3>
+                        <h3
+                          className={`font-['Barlow_Condensed',sans-serif] text-3xl sm:text-4xl font-bold uppercase ${
+                            theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                          }`}
+                        >
+                          {project.title}
+                        </h3>
                         <span className="text-xs font-bold text-[#5C7A99] uppercase bg-[#5C7A99]/10 border border-[#5C7A99]/30 px-3.5 py-1.5 shrink-0">
                           {project.year}
                         </span>
                       </div>
-                      <p className={`text-lg mt-5 leading-relaxed ${
-                        theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                      }`}>{project.summary}</p>
-                      <div className={`mt-8 pt-6 border-t text-sm sm:text-base font-bold uppercase flex justify-between ${
-                        theme === 'dark' ? 'border-[#1B1F24] text-[#6B7178]' : 'border-[#E8E6DF] text-[#9C9890]'
-                      }`}>
+                      <p
+                        className={`text-lg mt-5 leading-relaxed ${
+                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
+                        }`}
+                      >
+                        {project.summary}
+                      </p>
+                      <div
+                        className={`mt-8 pt-6 border-t text-sm sm:text-base font-bold uppercase flex justify-between ${
+                          theme === 'dark' ? 'border-[#1B1F24] text-[#6B7178]' : 'border-[#E8E6DF] text-[#9C9890]'
+                        }`}
+                      >
                         <span>Location:</span>
-                        <span className={theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'}>{project.location}</span>
+                        <span className={theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'}>
+                          {project.location}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -578,21 +912,32 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Process Section */}
-          <section id="process" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-          }`}>
+          <section
+            id="process"
+            className={`py-28 sm:py-36 border-t scroll-mt-16 sm:scroll-mt-20 ${
+              theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+            }`}
+          >
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-20 sm:mb-24">
-                <span className="text-[#E8590C] font-bold text-base sm:text-lg">{SITE_CONTENT.process.eyebrow}</span>
-                <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                  theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                }`}>{SITE_CONTENT.process.heading}</h2>
+                <span className="text-[#E8590C] font-bold text-base sm:text-lg">
+                  {SITE_CONTENT.process.eyebrow}
+                </span>
+                <h2
+                  className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
+                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                  }`}
+                >
+                  {SITE_CONTENT.process.heading}
+                </h2>
               </div>
 
               <div className="relative max-w-6xl mx-auto">
-                <div className={`hidden lg:block absolute top-8 left-[6%] right-[6%] h-px ${
-                  theme === 'dark' ? 'bg-[#242A31]' : 'bg-[#C9C6BC]'
-                }`} />
+                <div
+                  className={`hidden lg:block absolute top-8 left-[6%] right-[6%] h-px ${
+                    theme === 'dark' ? 'bg-[#242A31]' : 'bg-[#C9C6BC]'
+                  }`}
+                />
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-y-14 gap-x-12">
                   {SITE_CONTENT.process.steps.map((step, idx) => (
                     <div key={idx} className="relative flex flex-col items-start">
@@ -604,12 +949,20 @@ Sent from: Swanlake Machinery Website
                       >
                         {idx + 1}
                       </div>
-                      <h3 className={`font-['Barlow_Condensed',sans-serif] font-bold text-3xl sm:text-4xl uppercase mt-6 ${
-                        theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                      }`}>{step.title}</h3>
-                      <p className={`text-lg mt-4 leading-relaxed ${
-                        theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
-                      }`}>{step.detail}</p>
+                      <h3
+                        className={`font-['Barlow_Condensed',sans-serif] font-bold text-3xl sm:text-4xl uppercase mt-6 ${
+                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                        }`}
+                      >
+                        {step.title}
+                      </h3>
+                      <p
+                        className={`text-lg mt-4 leading-relaxed ${
+                          theme === 'dark' ? 'text-[#9CA3AC]' : 'text-[#4B5158]'
+                        }`}
+                      >
+                        {step.detail}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -618,63 +971,103 @@ Sent from: Swanlake Machinery Website
           </section>
 
           {/* Contact Section */}
-          <section id="contact" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
-          }`}>
+          <section
+            id="contact"
+            className={`py-28 sm:py-36 border-t scroll-mt-16 sm:scroll-mt-20 ${
+              theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-[#E8E6DF] border-[#C9C6BC]'
+            }`}
+          >
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-18">
                 <div className="lg:col-span-5">
-                  <span className="text-[#E8590C] font-bold text-base sm:text-lg border-l-2 border-[#E8590C] pl-4 block">{SITE_CONTENT.contact.eyebrow}</span>
-                  <h2 className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
-                    theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
-                  }`}>{SITE_CONTENT.contact.heading}</h2>
-                  <p className={`text-lg sm:text-xl leading-relaxed mt-6 ${
-                    theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
-                  }`}>
+                  <span className="text-[#E8590C] font-bold text-base sm:text-lg border-l-2 border-[#E8590C] pl-4 block">
+                    {SITE_CONTENT.contact.eyebrow}
+                  </span>
+                  <h2
+                    className={`font-['Barlow_Condensed',sans-serif] text-6xl sm:text-7xl font-black uppercase tracking-tight mt-4 ${
+                      theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                    }`}
+                  >
+                    {SITE_CONTENT.contact.heading}
+                  </h2>
+                  <p
+                    className={`text-lg sm:text-xl leading-relaxed mt-6 ${
+                      theme === 'dark' ? 'text-[#B7BCC3]' : 'text-[#4B5158]'
+                    }`}
+                  >
                     {SITE_CONTENT.contact.subhead}
                   </p>
 
                   <div className="mt-12 space-y-8 text-base">
-                    <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                    }`}>
-                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Yard Address</span>
-                      <span className={`font-bold text-lg sm:text-xl ${theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'}`}>{SITE_CONTENT.company.address}</span>
+                    <div
+                      className={`p-8 border ${
+                        theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                      }`}
+                    >
+                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">
+                        Yard Address
+                      </span>
+                      <span
+                        className={`font-bold text-lg sm:text-xl ${
+                          theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
+                        }`}
+                      >
+                        {SITE_CONTENT.company.address}
+                      </span>
                     </div>
-                    <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                    }`}>
-                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Email Inquiry</span>
-                      <a href={`mailto:${SITE_CONTENT.company.email}`} className={`text-[#E8590C] font-bold text-lg sm:text-xl hover:underline rounded-sm ${focusRing}`}>
+                    <div
+                      className={`p-8 border ${
+                        theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                      }`}
+                    >
+                      <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">
+                        Email Inquiry
+                      </span>
+                      <a
+                        href={`mailto:${SITE_CONTENT.company.email}`}
+                        className={`text-[#E8590C] font-bold text-lg sm:text-xl hover:underline rounded-sm ${FOCUS_RING}`}
+                      >
                         {SITE_CONTENT.company.email}
                       </a>
                     </div>
                   </div>
                 </div>
 
-                <div className={`lg:col-span-7 p-8 sm:p-14 border shadow-2xl ${
-                  theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-                }`}>
-                  {contactSubmitted ? (
-                    <div className="p-12 bg-[#3D9A5C]/10 border border-[#3D9A5C]/30 text-[#3D9A5C] text-lg sm:text-xl font-bold text-center space-y-6">
+                <div
+                  className={`lg:col-span-7 p-8 sm:p-14 border shadow-2xl ${
+                    theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                  }`}
+                >
+                  {formStatus.state === 'success' ? (
+                    <div className="p-12 bg-[#3D9A5C]/10 border border-[#3D9A5C]/30 text-[#3D9A5C] text-lg sm:text-xl font-bold text-center space-y-6 swanlake-fade-in">
                       <p>Thank you! Your inquiry has been submitted. We will contact you by email shortly.</p>
                       <button
-                        onClick={() => setContactSubmitted(false)}
-                        className={`text-base sm:text-lg text-[#E8590C] uppercase underline cursor-pointer rounded-sm ${focusRing}`}
+                        type="button"
+                        onClick={resetForm}
+                        className={`text-base sm:text-lg text-[#E8590C] uppercase underline cursor-pointer rounded-sm ${FOCUS_RING}`}
                       >
                         Send another message
                       </button>
                     </div>
                   ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-8">
-                      {contactError && (
-                        <div className="p-6 bg-[#C4432B]/10 border border-[#C4432B]/30 text-[#C4432B] text-base sm:text-lg font-bold">
-                          {contactError}
+                    <form
+                      ref={formRef}
+                      onSubmit={handleContactSubmit}
+                      onInput={handleFormInput}
+                      noValidate={false}
+                      className="space-y-8"
+                    >
+                      {formStatus.state === 'error' && (
+                        <div className="p-6 bg-[#C4432B]/10 border border-[#C4432B]/30 text-[#C4432B] text-base sm:text-lg font-bold swanlake-fade-in">
+                          {formStatus.message}
                         </div>
                       )}
                       <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Full Name</label>
+                        <label htmlFor="name" className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">
+                          Full Name
+                        </label>
                         <input
+                          id="name"
                           type="text"
                           name="name"
                           required
@@ -687,21 +1080,33 @@ Sent from: Swanlake Machinery Website
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                         <div>
-                          <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Email</label>
+                          <label htmlFor="email" className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">
+                            Email
+                          </label>
                           <input
+                            id="email"
                             type="email"
                             name="email"
                             required
+                            maxLength={254}
                             className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
                               theme === 'dark'
                                 ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
                                 : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
                             }`}
                           />
+                          <span
+                            ref={emailHintRef}
+                            aria-live="polite"
+                            className="block text-sm text-[#C4432B] mt-2 min-h-[1.25rem]"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Phone</label>
+                          <label htmlFor="phone" className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">
+                            Phone
+                          </label>
                           <input
+                            id="phone"
                             type="tel"
                             name="phone"
                             className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
@@ -713,8 +1118,11 @@ Sent from: Swanlake Machinery Website
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Equipment Category</label>
+                        <label htmlFor="category" className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">
+                          Equipment Category
+                        </label>
                         <select
+                          id="category"
                           name="category"
                           className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
                             theme === 'dark'
@@ -729,25 +1137,34 @@ Sent from: Swanlake Machinery Website
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm sm:text-base uppercase font-bold text-[#6B7178] mb-3">Message</label>
+                        <div className="flex items-center justify-between mb-3">
+                          <label htmlFor="message" className="block text-sm sm:text-base uppercase font-bold text-[#6B7178]">
+                            Message
+                          </label>
+                          <span ref={charCountRef} className="text-xs text-[#6B7178]">
+                            0/500
+                          </span>
+                        </div>
                         <textarea
+                          id="message"
                           name="message"
                           rows={4}
                           required
+                          maxLength={500}
                           className={`w-full border p-6 text-lg sm:text-xl focus:border-[#E8590C] focus:outline-none transition-colors ${
                             theme === 'dark'
                               ? 'bg-[#1B1F24] border-[#242A31] text-[#ECEDEF]'
                               : 'bg-[#F9F8F5] border-[#C9C6BC] text-[#14171B]'
                           }`}
-                        ></textarea>
+                        />
                       </div>
                       <button
                         type="submit"
-                        disabled={contactSubmitting}
-                        className={`w-full py-6 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 disabled:opacity-50 cursor-pointer ${focusRing}`}
+                        disabled={formStatus.state === 'submitting' || !canSubmit}
+                        className={`w-full py-6 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${FOCUS_RING}`}
                         style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
                       >
-                        {contactSubmitting ? 'Sending...' : 'Send Message'}
+                        {formStatus.state === 'submitting' ? 'Sending...' : 'Send Message'}
                       </button>
                     </form>
                   )}
@@ -761,9 +1178,8 @@ Sent from: Swanlake Machinery Website
         <footer className="border-t bg-[#14171B] border-[#242A31] text-[#9CA3AC]">
           <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-24">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-14">
-
               <div className="lg:col-span-2 space-y-6">
-                <a href="#top" className={`flex items-center gap-3 rounded-sm ${focusRing}`}>
+                <a href="#top" className={`flex items-center gap-3 rounded-sm ${FOCUS_RING}`}>
                   <div
                     className="w-8 h-8 bg-[#E8590C]"
                     style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
@@ -782,11 +1198,13 @@ Sent from: Swanlake Machinery Website
               </div>
 
               <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Navigation</h4>
+                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">
+                  Navigation
+                </h4>
                 <ul className="space-y-4 text-base font-bold uppercase tracking-wider">
                   {SITE_CONTENT.nav.map((item) => (
                     <li key={item.label}>
-                      <a href={item.href} className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>
+                      <a href={item.href} className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
                         {item.label}
                       </a>
                     </li>
@@ -795,22 +1213,49 @@ Sent from: Swanlake Machinery Website
               </div>
 
               <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Fleet Categories</h4>
+                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">
+                  Fleet Categories
+                </h4>
                 <ul className="space-y-4 text-base font-bold uppercase tracking-wider">
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Earthmoving</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Lifting & Cranes</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Compaction</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Power Generation</a></li>
-                  <li><a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${focusRing}`}>Haulage & Transport</a></li>
+                  <li>
+                    <a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
+                      Earthmoving
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
+                      Lifting & Cranes
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
+                      Compaction
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
+                      Power Generation
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#services" className={`hover:text-[#E8590C] transition-colors rounded-sm ${FOCUS_RING}`}>
+                      Haulage & Transport
+                    </a>
+                  </li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">Direct Contact</h4>
+                <h4 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#ECEDEF] mb-6">
+                  Direct Contact
+                </h4>
                 <div className="space-y-6 text-base sm:text-lg">
                   <div>
                     <span className="block text-sm text-[#6B7178] uppercase font-bold">Dispatch Email</span>
-                    <a href={`mailto:${SITE_CONTENT.company.email}`} className={`text-[#E8590C] font-bold hover:underline rounded-sm ${focusRing}`}>
+                    <a
+                      href={`mailto:${SITE_CONTENT.company.email}`}
+                      className={`text-[#E8590C] font-bold hover:underline rounded-sm ${FOCUS_RING}`}
+                    >
                       {SITE_CONTENT.company.email}
                     </a>
                   </div>
@@ -820,24 +1265,42 @@ Sent from: Swanlake Machinery Website
                   </div>
                 </div>
               </div>
-
             </div>
 
             <div className="mt-16 sm:mt-24 pt-12 border-t border-[#242A31] flex flex-col sm:flex-row items-center justify-between gap-6 text-base text-[#6B7178]">
               <p>© {new Date().getFullYear()} {SITE_CONTENT.company.fullName}. All rights reserved.</p>
-              <a href="#top" className={`text-[#E8590C] hover:text-[#FF7A29] font-bold uppercase tracking-widest text-sm sm:text-base transition-colors rounded-sm ${focusRing}`}>
+              <a
+                href="#top"
+                className={`text-[#E8590C] hover:text-[#FF7A29] font-bold uppercase tracking-widest text-sm sm:text-base transition-colors rounded-sm ${FOCUS_RING}`}
+              >
                 Back to top
               </a>
             </div>
           </div>
         </footer>
 
+        {/* Back to top button */}
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })}
+          aria-label="Back to top"
+          className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-[#E8590C] text-[#14171B] shadow-2xl transition-all duration-300 hover:bg-[#FF7A29] cursor-pointer ${FOCUS_RING} ${
+            showBackToTop
+              ? 'opacity-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+          style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
+        >
+          <svg className="w-5 h-5 sm:w-6 sm:h-6 fill-current" viewBox="0 0 20 20">
+            <path d="M10 3l7 7h-4v7H7v-7H3l7-7z" />
+          </svg>
+        </button>
+
+        {/* Lazy-loaded Modal */}
         {selectedService && (
-          <InterestModal
-            theme={theme}
-            service={selectedService}
-            onClose={() => setSelectedService(null)}
-          />
+          <Suspense fallback={null}>
+            <InterestModal theme={theme} service={selectedService} onClose={closeSelectedService} />
+          </Suspense>
         )}
       </div>
     </HelmetProvider>
