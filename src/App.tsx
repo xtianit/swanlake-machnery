@@ -156,18 +156,18 @@ Sent from: Swanlake Machinery Website
             : 'bg-white/90 border-[#C9C6BC] text-[#14171B]'
         }`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+            <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
 
               {/* Brand / Logo */}
               <a 
                 href="#top" 
-                className={`flex items-center gap-2.5 shrink-0 rounded-sm cursor-pointer ${focusRing}`}
+                className={`flex items-center gap-2 sm:gap-2.5 min-w-0 shrink rounded-sm cursor-pointer ${focusRing}`}
               >
                 <div
-                  className="w-7 h-7 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
+                  className="w-6 h-6 sm:w-8 sm:h-8 bg-[#E8590C] shrink-0"
                   style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 60% 100%, 0 100%)' }}
                 />
-                <span className={`font-['Barlow_Condensed',sans-serif] font-black text-xl sm:text-2xl lg:text-3xl uppercase tracking-wider ${
+                <span className={`font-['Barlow_Condensed',sans-serif] font-black text-base xs:text-lg sm:text-2xl lg:text-3xl uppercase tracking-normal xs:tracking-wider truncate ${
                   theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'
                 }`}>
                   {SITE_CONTENT.company.name}
@@ -190,13 +190,13 @@ Sent from: Swanlake Machinery Website
               </nav>
 
               {/* Header Actions */}
-              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                 {/* Theme Toggle */}
                 <button
                   type="button"
                   onClick={toggleTheme}
                   aria-label="Toggle theme"
-                  className={`px-3 py-2 h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
+                  className={`px-2.5 sm:px-3 py-2 h-9 sm:h-10 rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
                     theme === 'dark'
                       ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B] hover:bg-[#242A31]'
                       : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B] hover:bg-[#DCD8CF]'
@@ -227,12 +227,12 @@ Sent from: Swanlake Machinery Website
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className={`md:hidden h-10 w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
+                  className={`md:hidden h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
                     theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
                   }`}
                   aria-label="Toggle menu"
                 >
-                  <svg className="w-6 h-6 fill-current pointer-events-none" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 fill-current pointer-events-none transition-transform duration-300" viewBox="0 0 24 24">
                     {isMobileMenuOpen ? (
                       <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
                     ) : (
@@ -244,34 +244,40 @@ Sent from: Swanlake Machinery Website
             </div>
           </div>
 
-          {/* Mobile Menu Dropdown */}
-          {isMobileMenuOpen && (
-            <div className={`md:hidden border-t border-b px-6 py-6 space-y-4 shadow-2xl ${
-              theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
-            }`}>
-              <nav className="flex flex-col gap-1 text-base font-black uppercase tracking-wider">
-                {SITE_CONTENT.nav.map((item) => (
+          {/* Animated Mobile Menu Wrapper */}
+          <div className={`grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out ${
+            isMobileMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+          }`}>
+            <div className="overflow-hidden">
+              <div className={`border-t border-b px-6 py-6 space-y-4 shadow-2xl transition-all duration-300 ease-in-out ${
+                isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+              } ${
+                theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+              }`}>
+                <nav className="flex flex-col gap-1 text-base font-black uppercase tracking-wider">
+                  {SITE_CONTENT.nav.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+                <div className="pt-2 sm:hidden">
                   <a
-                    key={item.label}
-                    href={item.href}
+                    href="#contact"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="hover:text-[#E8590C] transition-colors py-3 border-b border-gray-500/10 last:border-0 cursor-pointer"
+                    className="w-full flex items-center justify-center py-3 bg-[#E8590C] text-[#14171B] font-black uppercase text-sm tracking-wider cursor-pointer"
                   >
-                    {item.label}
+                    Start Project
                   </a>
-                ))}
-              </nav>
-              <div className="pt-2 sm:hidden">
-                <a
-                  href="#contact"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center py-3 bg-[#E8590C] text-[#14171B] font-black uppercase text-sm tracking-wider cursor-pointer"
-                >
-                  Start Project
-                </a>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </header>
 
         <main id="top" className="pt-16 sm:pt-20">
