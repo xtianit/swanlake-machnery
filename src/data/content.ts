@@ -104,7 +104,7 @@ export const SITE_CONTENT: SiteContent = {
     fullName: "Swanlake Machinery Ltd.",
     phone: "",
     phoneHref: "",
-    email: "joeyoung30@gmail.com",
+    email: "swanlakemachineryltd@gmail.com",
     address: "202 Japka Road, Effurun, Warri, Delta State",
     hours: "",
     social: {
