@@ -307,59 +307,65 @@ Sent from: Swanlake Machinery Website
             </nav>
 
             {/* Header Actions */}
-            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              {/* Theme Toggle */}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className={`p-2 sm:px-3 sm:py-2 min-w-[40px] min-h-[40px] rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
-                  theme === 'dark'
-                    ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
-                    : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-                }`}
-              >
-                {theme === 'dark' ? (
-                  <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-                <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-              </button>
+            {/* Header Actions */}
+<div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+  {/* Language Selector Dropdown */}
+  <div className="relative inline-block text-left">
+    <select
+      aria-label="Select Language"
+      className={`py-2 px-2.5 sm:px-3 text-xs font-black uppercase border transition-colors cursor-pointer ${focusRing} ${
+        theme === 'dark'
+          ? 'bg-[#1B1F24] border-[#333B44] text-[#ECEDEF]'
+          : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
+      }`}
+      style={{ clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)' }}
+      defaultValue="en"
+      onChange={(e) => {
+        console.log("Selected language:", e.target.value);
+      }}
+    >
+      <option value="en">ENG</option>
+      <option value="fr">FRE</option>
+      <option value="ha">HAU</option>
+      <option value="ig">IGB</option>
+      <option value="yo">YOR</option>
+    </select>
+  </div>
 
-              {/* CTA Button */}
-              <a
-                href="#contact"
-                className={`hidden sm:inline-flex items-center text-xs tracking-wider transition-all duration-300 bg-[#E8590C] text-[#14171B] font-black uppercase hover:bg-[#FF7A29] whitespace-nowrap cursor-pointer ${focusRing} ${
-                  isScrolled ? 'py-1.5 px-3' : 'py-2 px-4'
-                }`}
-                style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
-              >
-                Start Project
-              </a>
+  {/* Theme Toggle */}
+  <button
+    type="button"
+    onClick={toggleTheme}
+    aria-label="Toggle theme"
+    className={`p-2 sm:px-3 sm:py-2 min-w-[40px] min-h-[40px] rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
+      theme === 'dark'
+        ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
+        : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
+    }`}
+  >
+    {theme === 'dark' ? (
+      <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+      </svg>
+    )}
+    <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+  </button>
 
-              {/* Mobile Hamburger Button */}
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className={`md:hidden p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md cursor-pointer active:scale-95 transition-all ${focusRing} ${
-                  theme === 'dark' ? 'text-[#B7BCC3] hover:text-white' : 'text-[#4B5158] hover:text-black'
-                }`}
-                aria-label="Toggle menu"
-              >
-                <svg className="w-7 h-7 fill-current pointer-events-none" viewBox="0 0 24 24">
-                  {isMobileMenuOpen ? (
-                    <path fillRule="evenodd" clipRule="evenodd" d="M18.278 16.864a1 1 0 01-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 01-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 011.414-1.414l4.829 4.828 4.828-4.828a1 1 0 111.414 1.414l-4.828 4.829 4.828 4.828z" />
-                  ) : (
-                    <path fillRule="evenodd" d="M4 5h16a1 1 0 010 2H4a1 1 0 110-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2zm0 6h16a1 1 0 010 2H4a1 1 0 010-2z" />
-                  )}
-                </svg>
-              </button>
-            </div>
+  {/* CTA Button */}
+  <a
+    href="#contact"
+    className={`hidden sm:inline-flex items-center text-xs tracking-wider transition-all duration-300 bg-[#E8590C] text-[#14171B] font-black uppercase hover:bg-[#FF7A29] whitespace-nowrap cursor-pointer ${focusRing} ${
+      isScrolled ? 'py-1.5 px-3' : 'py-2 px-4'
+    }`}
+    style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
+  >
+    Start Project
+  </a>
+</div>
           </div>
 
           {/* Mobile Menu Dropdown */}
@@ -437,7 +443,7 @@ Sent from: Swanlake Machinery Website
         <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '3.9s' }} />
         <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '4.10s' }} />
         <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '5.11s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '6.12s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '.12s' }} />
       </div>
     )}
   </div>
