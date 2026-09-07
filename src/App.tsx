@@ -397,12 +397,16 @@ Sent from: Swanlake Machinery Website
           {/* Hero Section */}
           <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+
+
+
+
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                preload="none"
+                preload="auto"
                 ref={(videoRef) => {
                   if (videoRef) {
                     videoRef.muted = true;
@@ -416,6 +420,10 @@ Sent from: Swanlake Machinery Website
                 <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
                 Your browser does not support video playback.
               </video>
+
+
+
+              
 
               <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/70 to-[#14171B]/90" />
               <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
