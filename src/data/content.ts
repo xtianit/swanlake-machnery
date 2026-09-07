@@ -123,7 +123,7 @@ export const SITE_CONTENT: SiteContent = {
   ],
 
   hero: {
-    videoSrc: "https://res.cloudinary.com/dugjrp8at/video/upload/q_auto,vc_h264,w_1280/v1788704674/hero-loop.mp4",
+    videoSrc: "https://res.cloudinary.com/dugjrp8at/video/upload/q_auto,vc_h264,w_1280/v1788797098/more_video.mp4",
     posterSrc: "https://res.cloudinary.com/dugjrp8at/image/upload/f_auto,q_auto,w_1280/v1788705074/hero-poster.webp",
     eyebrow: "Effurun, Warri — Delta State",
     headlinePrefix: "Heavy machinery,",
@@ -132,7 +132,7 @@ export const SITE_CONTENT: SiteContent = {
       "delivered directly on time.",
       "serviced for peak power.",
       "built for Niger Delta terrain."
-  ],
+    ],
     subhead: "Swanlake Machinery Ltd. leases excavators, swamp buggies, cranes, generators, and site equipment across the Niger Delta region, with operators available on request.",
     ctaPrimary: { label: "View equipment", href: "#portfolio" },
     ctaSecondary: { label: "Request a lease", href: "#contact" },
