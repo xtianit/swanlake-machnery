@@ -428,12 +428,16 @@ Sent from: Swanlake Machinery Website
           className="absolute w-full h-full rounded-full opacity-30 blur-3xl swanlake-swirl"
           style={{
             background:
-              'conic-gradient(from 0deg, transparent 0%, rgba(232,89,12,0.3) 25%, transparent 50%, rgba(255,124,41,0.2) 75%, transparent 100%)',
+              'conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.25) 25%, transparent 50%, rgba(255,255,255,0.2) 75%, transparent 100%)',
           }}
         />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '0s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '1.4s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '2.8s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '0s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '1.4s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '2.8s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '3.9s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '4.10s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '5.11s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '6.12s' }} />
       </div>
     )}
   </div>
@@ -463,9 +467,9 @@ Sent from: Swanlake Machinery Website
         </span>
       </h1>
 
-      <p className="text-white text-lg sm:text-xl mt-8 sm:mt-10 max-w-2xl leading-relaxed font-bold drop-shadow-md">
-        {SITE_CONTENT.hero.subhead}
-      </p>
+     <p className="text-white text-lg sm:text-xl mt-8 sm:mt-10 max-w-2xl leading-relaxed font-bold drop-shadow-md animate-fade-in-up">
+      {SITE_CONTENT.hero.subhead}
+    </p>
 
       <div className="flex flex-col sm:flex-row gap-6 mt-12">
         <a
