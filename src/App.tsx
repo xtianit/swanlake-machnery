@@ -395,109 +395,102 @@ Sent from: Swanlake Machinery Website
         <main id="top" className="pt-24 sm:pt-28">
 
           {/* Hero Section */}
-          <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
+  <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      ref={(videoRef) => {
+        if (videoRef) {
+          videoRef.muted = true;
+          videoRef.play().catch((err) => {
+            console.warn("Autoplay deferred by browser policy:", err);
+          });
+        }
+      }}
+      className="w-full h-full object-cover object-center motion-reduce:hidden brightness-105 contrast-105"
+    >
+      <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
+      Your browser does not support video playback.
+    </video>
 
+    {/* Lighter overlay gradient to let the video show through more clearly */}
+    <div className="absolute inset-0 bg-gradient-to-t from-[#14171B]/80 via-[#14171B]/40 to-[#14171B]/60" />
+    <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
 
+    {/* Continuous swirl + ripple -- an ambient, always-on accent, skipped for reduced motion */}
+    {!prefersReducedMotion && (
+      <div className="absolute right-[-15%] sm:right-[2%] top-[8%] w-[420px] h-[420px] sm:w-[560px] sm:h-[560px] flex items-center justify-center">
+        <div
+          className="absolute w-full h-full rounded-full opacity-30 blur-3xl swanlake-swirl"
+          style={{
+            background:
+              'conic-gradient(from 0deg, transparent 0%, rgba(232,89,12,0.3) 25%, transparent 50%, rgba(255,124,41,0.2) 75%, transparent 100%)',
+          }}
+        />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '0s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '1.4s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/30 swanlake-ripple" style={{ animationDelay: '2.8s' }} />
+      </div>
+    )}
+  </div>
 
+  <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-start">
+    <div className="mt-4 sm:mt-8 max-w-4xl">
+      <div
+        className="inline-flex items-center gap-3 pl-4 pr-6 py-3 bg-[#1B1F24] border-t-2 border-[#E8590C] text-[#ECEDEF] text-base sm:text-lg font-bold mb-8"
+        style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
+      >
+        <span className="w-3 h-3 bg-[#E8590C] shrink-0" />
+        {SITE_CONTENT.hero.eyebrow}
+      </div>
 
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                ref={(videoRef) => {
-                  if (videoRef) {
-                    videoRef.muted = true;
-                    videoRef.play().catch((err) => {
-                      console.warn("Autoplay deferred by browser policy:", err);
-                    });
-                  }
-                }}
-                className="w-full h-full object-cover scale-105 motion-reduce:hidden"
-              >
-                <source src={SITE_CONTENT.hero.videoSrc} type="video/mp4" />
-                Your browser does not support video playback.
-              </video>
+      <h1 className="font-['Barlow_Condensed',sans-serif] text-7xl sm:text-8xl lg:text-9xl font-black uppercase tracking-tight leading-[1.05] text-[#ECEDEF]">
+        {SITE_CONTENT.hero.headlinePrefix}{" "}
+        <span className="inline-block overflow-hidden align-top h-[1.25em]">
+          <span
+            className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none ${
+              isAnimating
+                ? '-translate-y-full opacity-0'
+                : 'translate-y-0 opacity-100'
+            }`}
+          >
+            {SITE_CONTENT.hero.rotatingWords[wordIndex]}
+          </span>
+        </span>
+      </h1>
 
+      <p className="text-white text-lg sm:text-xl mt-8 sm:mt-10 max-w-2xl leading-relaxed font-bold drop-shadow-md">
+        {SITE_CONTENT.hero.subhead}
+      </p>
 
+      <div className="flex flex-col sm:flex-row gap-6 mt-12">
+        <a
+          href={SITE_CONTENT.hero.ctaPrimary.href}
+          className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${focusRing}`}
+          style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
+        >
+          {SITE_CONTENT.hero.ctaPrimary.label}
+        </a>
+        <a
+          href={SITE_CONTENT.hero.ctaSecondary.href}
+          className={`w-full sm:w-auto text-center py-6 px-10 border border-[#333B44] bg-[#1B1F24]/50 backdrop-blur-sm text-[#ECEDEF] font-bold uppercase text-base sm:text-lg tracking-wider hover:border-[#E8590C] hover:text-[#E8590C] transition-colors duration-300 ${focusRing}`}
+        >
+          {SITE_CONTENT.hero.ctaSecondary.label}
+        </a>
+      </div>
+    </div>
 
-              
-
-              <div className="absolute inset-0 bg-gradient-to-t from-[#14171B] via-[#14171B]/70 to-[#14171B]/90" />
-              <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
-
-              {/* Continuous swirl + ripple -- an ambient, always-on accent, skipped for reduced motion */}
-              {!prefersReducedMotion && (
-                <div className="absolute right-[-15%] sm:right-[2%] top-[8%] w-[420px] h-[420px] sm:w-[560px] sm:h-[560px] flex items-center justify-center">
-                  <div
-                    className="absolute w-full h-full rounded-full opacity-40 blur-3xl swanlake-swirl"
-                    style={{
-                      background:
-                        'conic-gradient(from 0deg, transparent 0%, rgba(232,89,12,0.35) 25%, transparent 50%, rgba(255,124,41,0.28) 75%, transparent 100%)',
-                    }}
-                  />
-                  <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/40 swanlake-ripple" style={{ animationDelay: '0s' }} />
-                  <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/40 swanlake-ripple" style={{ animationDelay: '1.4s' }} />
-                  <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/40 swanlake-ripple" style={{ animationDelay: '2.8s' }} />
-                </div>
-              )}
-            </div>
-
-            <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-start">
-              <div className="mt-4 sm:mt-8 max-w-4xl">
-                <div
-                  className="inline-flex items-center gap-3 pl-4 pr-6 py-3 bg-[#1B1F24] border-t-2 border-[#E8590C] text-[#ECEDEF] text-base sm:text-lg font-bold mb-8"
-                  style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
-                >
-                  <span className="w-3 h-3 bg-[#E8590C] shrink-0" />
-                  {SITE_CONTENT.hero.eyebrow}
-                </div>
-
-                <h1 className="font-['Barlow_Condensed',sans-serif] text-7xl sm:text-8xl lg:text-9xl font-black uppercase tracking-tight leading-[1.05] text-[#ECEDEF]">
-                  {SITE_CONTENT.hero.headlinePrefix}{" "}
-                  <span className="inline-block overflow-hidden align-top h-[1.25em]">
-                    <span
-                      className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none ${
-                        isAnimating
-                          ? '-translate-y-full opacity-0'
-                          : 'translate-y-0 opacity-100'
-                      }`}
-                    >
-                      {SITE_CONTENT.hero.rotatingWords[wordIndex]}
-                    </span>
-                  </span>
-                </h1>
-
-                <p className="text-[#B7BCC3] text-lg sm:text-xl mt-8 sm:mt-10 max-w-2xl leading-relaxed font-normal">
-                  {SITE_CONTENT.hero.subhead}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-6 mt-12">
-                  <a
-                    href={SITE_CONTENT.hero.ctaPrimary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${focusRing}`}
-                    style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
-                  >
-                    {SITE_CONTENT.hero.ctaPrimary.label}
-                  </a>
-                  <a
-                    href={SITE_CONTENT.hero.ctaSecondary.href}
-                    className={`w-full sm:w-auto text-center py-6 px-10 border border-[#333B44] bg-[#1B1F24]/50 backdrop-blur-sm text-[#ECEDEF] font-bold uppercase text-base sm:text-lg tracking-wider hover:border-[#E8590C] hover:text-[#E8590C] transition-colors duration-300 ${focusRing}`}
-                  >
-                    {SITE_CONTENT.hero.ctaSecondary.label}
-                  </a>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6 border-t border-[#242A31] pt-12 mt-16 sm:mt-20 max-w-4xl">
-                {SITE_CONTENT.hero.stats.map((stat, i) => (
-                  <AnimatedMetrics key={i} value={stat.value} label={stat.label} />
-                ))}
-              </div>
-            </div>
-          </section>
+    <div className="grid grid-cols-3 gap-6 border-t border-[#242A31] pt-12 mt-16 sm:mt-20 max-w-4xl">
+      {SITE_CONTENT.hero.stats.map((stat, i) => (
+        <AnimatedMetrics key={i} value={stat.value} label={stat.label} />
+      ))}
+    </div>
+  </div>
+</section>
 
           {/* About Section */}
           <section id="about" className={`py-28 sm:py-36 border-t ${
