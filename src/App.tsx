@@ -402,7 +402,7 @@ Sent from: Swanlake Machinery Website
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="none"
                 ref={(videoRef) => {
                   if (videoRef) {
                     videoRef.muted = true;
