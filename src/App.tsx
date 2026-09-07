@@ -22,36 +22,7 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-function useTypewriter(words: string[], speed = 100, deleteSpeed = 50, delay = 2000) {
-  const [displayText, setDisplayText] = useState('');
-  const [wordIdx, setWordIdx] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    if (!words || words.length === 0) return;
-
-    const currentWord = words[wordIdx % words.length];
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayText(currentWord.substring(0, displayText.length + 1));
-        if (displayText.length === currentWord.length) {
-          setTimeout(() => setIsDeleting(true), delay);
-        }
-      } else {
-        setDisplayText(currentWord.substring(0, displayText.length - 1));
-        if (displayText.length === 0) {
-          setIsDeleting(false);
-          setWordIdx((prev) => (prev + 1) % words.length);
-        }
-      }
-    }, isDeleting ? deleteSpeed : speed);
-
-    return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, wordIdx, words, speed, deleteSpeed, delay]);
-
-  return displayText;
-}
 
 // Generic "has this scrolled into view yet" hook -- fires once, then stops
 // observing, so it costs nothing after the reveal has happened.
