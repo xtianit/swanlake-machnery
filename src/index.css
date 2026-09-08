@@ -81,3 +81,54 @@ h2 {
 .animate-fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+
+/* Custom styling for Google Translate dropdown to match Swanlake UI */
+.goog-te-combo {
+  background-color: #1B1F24 !important;
+  color: #ECEDEF !important;
+  border: 1px solid #333B44 !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+.goog-te-gadget {
+  font-family: inherit !important;
+  color: transparent !important;
+}
+
+.goog-te-gadget span {
+  display: none !important;
+}
+
+/* Hide Google Translate top banner frame if it appears */
+body {
+  top: 0 !important;
+}
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* Custom styling for GTranslate dropdown widget */
+.gtranslate_wrapper select {
+  background-color: #1B1F24 !important;
+  color: #ECEDEF !important;
+  border: 1px solid #333B44 !important;
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+body.light-theme .gtranslate_wrapper select,
+.light .gtranslate_wrapper select {
+  background-color: #E8E6DF !important;
+  color: #14171B !important;
+  border: 1px solid #C9C6BC !important;
+}

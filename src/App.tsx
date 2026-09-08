@@ -231,18 +231,12 @@ Sent from: Swanlake Machinery Website
         }
         .swanlake-ripple { animation: swanlake-ripple 3.5s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        @keyframes dropdown-open {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-        .animate-blink { animation: blink 0.8s infinite; }
-
-        @keyframes laser-scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(1000%); }
-        }
-        .laser-scanner {
-            animation: laser-scan 4s ease-in-out infinite alternate;
+        .animate-dropdown {
+            animation: dropdown-open 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         `}</style>
       </Helmet>
@@ -307,71 +301,71 @@ Sent from: Swanlake Machinery Website
             </nav>
 
             {/* Header Actions */}
-            {/* Header Actions */}
-<div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-  {/* Language Selector Dropdown */}
-  <div className="relative inline-block text-left">
-    <select
-      aria-label="Select Language"
-      className={`py-2 px-2.5 sm:px-3 text-xs font-black uppercase border transition-colors cursor-pointer ${focusRing} ${
-        theme === 'dark'
-          ? 'bg-[#1B1F24] border-[#333B44] text-[#ECEDEF]'
-          : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-      }`}
-      style={{ clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)' }}
-      defaultValue="en"
-      onChange={(e) => {
-        console.log("Selected language:", e.target.value);
-      }}
-    >
-      <option value="en">ENG</option>
-      <option value="fr">FRE</option>
-      <option value="ha">HAU</option>
-      <option value="ig">IGB</option>
-      <option value="yo">YOR</option>
-    </select>
-  </div>
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+              
+              {/* Theme Toggle */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className={`p-2 sm:px-3 sm:py-2 min-w-[40px] min-h-[40px] rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
+                  theme === 'dark'
+                    ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
+                    : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
+                }`}
+              >
+                {theme === 'dark' ? (
+                  <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+              </button>
 
-  {/* Theme Toggle */}
-  <button
-    type="button"
-    onClick={toggleTheme}
-    aria-label="Toggle theme"
-    className={`p-2 sm:px-3 sm:py-2 min-w-[40px] min-h-[40px] rounded-sm border text-xs font-black uppercase flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${focusRing} ${
-      theme === 'dark'
-        ? 'bg-[#1B1F24] border-[#333B44] text-[#FFC42B]'
-        : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
-    }`}
-  >
-    {theme === 'dark' ? (
-      <svg className="w-4 h-4 fill-[#FFC42B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
-      </svg>
-    ) : (
-      <svg className="w-4 h-4 fill-[#14171B] shrink-0 pointer-events-none" viewBox="0 0 20 20">
-        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-      </svg>
-    )}
-    <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-  </button>
+              {/* CTA Button */}
+              <a
+                href="#contact"
+                className={`hidden sm:inline-flex items-center text-xs tracking-wider transition-all duration-300 bg-[#E8590C] text-[#14171B] font-black uppercase hover:bg-[#FF7A29] whitespace-nowrap cursor-pointer ${focusRing} ${
+                  isScrolled ? 'py-1.5 px-3' : 'py-2 px-4'
+                }`}
+                style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
+              >
+                Start Project
+              </a>
 
-  {/* CTA Button */}
-  <a
-    href="#contact"
-    className={`hidden sm:inline-flex items-center text-xs tracking-wider transition-all duration-300 bg-[#E8590C] text-[#14171B] font-black uppercase hover:bg-[#FF7A29] whitespace-nowrap cursor-pointer ${focusRing} ${
-      isScrolled ? 'py-1.5 px-3' : 'py-2 px-4'
-    }`}
-    style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
-  >
-    Start Project
-  </a>
-</div>
+              {/* Mobile Menu Hamburger Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle mobile menu"
+                className={`md:hidden p-2.5 min-w-[40px] min-h-[40px] rounded-sm border flex items-center justify-center cursor-pointer transition-colors ${focusRing} ${
+                  theme === 'dark'
+                    ? 'bg-[#1B1F24] border-[#333B44] text-[#ECEDEF]'
+                    : 'bg-[#E8E6DF] border-[#C9C6BC] text-[#14171B]'
+                }`}
+              >
+                {isMobileMenuOpen ? (
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu Dropdown */}
+          {/* Mobile Menu Dropdown */}
           {isMobileMenuOpen && (
-            <div className={`md:hidden border-b px-6 py-6 space-y-4 shadow-2xl ${
-              theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+            <div className={`md:hidden border-b px-6 py-6 space-y-4 shadow-2xl animate-dropdown origin-top transition-all duration-300 ${
+              theme === 'dark' ? 'bg-[#14171B] border-[#242A31] text-[#ECEDEF]' : 'bg-white border-[#C9C6BC] text-[#14171B]'
             }`}>
               <nav className="flex flex-col gap-3 text-lg font-black uppercase tracking-wider">
                 {SITE_CONTENT.nav.map((item) => (
@@ -401,6 +395,7 @@ Sent from: Swanlake Machinery Website
         <main id="top" className="pt-24 sm:pt-28">
 
           {/* Hero Section */}
+      {/* Hero Section */}
         <section className="relative w-full min-h-[90vh] flex flex-col justify-center pt-32 pb-28 sm:pt-28 lg:pb-36 px-6 sm:px-8 overflow-hidden bg-gradient-to-b from-[#14171B] via-[#1B1F24] to-[#14171B] text-[#ECEDEF]">
   <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
     <video
@@ -427,9 +422,10 @@ Sent from: Swanlake Machinery Website
     <div className="absolute inset-0 bg-gradient-to-t from-[#14171B]/80 via-[#14171B]/40 to-[#14171B]/60" />
     <div className="absolute inset-0 bg-[radial-gradient(#333B44_1px,transparent_1px)] [background-size:24px_24px] opacity-10" />
 
-    {/* Continuous swirl + ripple -- an ambient, always-on accent, skipped for reduced motion */}
+    {/* Ultimate Sci-Fi HUD Globe & Orbiting Element */}
     {!prefersReducedMotion && (
       <div className="absolute right-[-15%] sm:right-[2%] top-[8%] w-[420px] h-[420px] sm:w-[560px] sm:h-[560px] flex items-center justify-center">
+        {/* Swirl background gradient */}
         <div
           className="absolute w-full h-full rounded-full opacity-30 blur-3xl swanlake-swirl"
           style={{
@@ -437,13 +433,51 @@ Sent from: Swanlake Machinery Website
               'conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.25) 25%, transparent 50%, rgba(255,255,255,0.2) 75%, transparent 100%)',
           }}
         />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '0s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '1.4s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '2.8s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '3.9s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '4.10s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '5.11s' }} />
-        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/30 swanlake-ripple" style={{ animationDelay: '.12s' }} />
+
+        {/* Ambient Tech HUD Rings */}
+        <div className="absolute w-[360px] h-[360px] sm:w-[460px] sm:h-[460px] rounded-full border border-dashed border-[#E8590C]/40 animate-[spin_50s_linear_infinite]" />
+        <div className="absolute w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] rounded-full border border-[#FFC42B]/20 animate-[spin_35s_linear_infinite_reverse]" />
+        <div className="absolute w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] rounded-full border border-white/10 animate-[spin_60s_linear_infinite]" />
+
+        {/* Orbiting White Text Ring */}
+        <div className="absolute z-20 w-52 h-52 sm:w-72 sm:h-72 pointer-events-none animate-[spin_25s_linear_infinite_reverse]">
+          <svg className="w-full h-full overflow-visible" viewBox="0 0 200 200">
+            <path
+              id="textPath"
+              d="M 100, 100 m -82, 0 a 82,82 0 1,1 164,0 a 82,82 0 1,1 -164,0"
+              fill="none"
+            />
+            <text className="text-[9.5px] font-black uppercase tracking-[0.3em] fill-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+              <textPath href="#textPath" startOffset="0%">
+                • SWANLAKE MACHINERY • GLOBAL FLEET & HEAVY EQUIPMENT LEASING
+              </textPath>
+            </text>
+          </svg>
+        </div>
+
+        {/* Central Gold-Continent Globe */}
+        <div className="absolute z-15 w-36 h-36 sm:w-48 sm:h-48 rounded-full overflow-hidden bg-[#14171B] border-2 border-[#E8590C] backdrop-blur-md pointer-events-none shadow-[0_0_90px_rgba(232,89,12,0.6)] flex items-center justify-center">
+          
+          {/* Rotating Gold World Map Texture */}
+          <div 
+            className="absolute w-[200%] h-full opacity-100 animate-[spin_35s_linear_infinite]"
+            style={{
+              backgroundImage: `url("https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'invert(1) sepia(100%) saturate(1000%) brightness(0.9) contrast(240%)',
+              mixBlendMode: 'screen',
+            }}
+          />
+
+          {/* 3D Sphere Shading Overlay */}
+          <div className="absolute inset-0 rounded-full bg-radial from-transparent via-black/40 to-black/95 pointer-events-none shadow-inner" />
+        </div>
+
+        {/* Pulsing Energy Ripples */}
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#E8590C]/40 swanlake-ripple" style={{ animationDelay: '0s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-white/20 swanlake-ripple" style={{ animationDelay: '1.2s' }} />
+        <span className="absolute w-40 h-40 sm:w-56 sm:h-56 rounded-full border-2 border-[#FFC42B]/30 swanlake-ripple" style={{ animationDelay: '2.4s' }} />
       </div>
     )}
   </div>
@@ -451,10 +485,10 @@ Sent from: Swanlake Machinery Website
   <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col justify-start">
     <div className="mt-4 sm:mt-8 max-w-4xl">
       <div
-        className="inline-flex items-center gap-3 pl-4 pr-6 py-3 bg-[#1B1F24] border-t-2 border-[#E8590C] text-[#ECEDEF] text-base sm:text-lg font-bold mb-8"
+        className="inline-flex items-center gap-3 pl-4 pr-6 py-3 bg-[#1B1F24] border-t-2 border-[#E8590C] text-[#ECEDEF] text-base sm:text-lg font-bold mb-8 shadow-xl"
         style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
       >
-        <span className="w-3 h-3 bg-[#E8590C] shrink-0" />
+        <span className="w-3 h-3 bg-[#E8590C] shrink-0 animate-ping" />
         {SITE_CONTENT.hero.eyebrow}
       </div>
 
@@ -462,7 +496,7 @@ Sent from: Swanlake Machinery Website
         {SITE_CONTENT.hero.headlinePrefix}{" "}
         <span className="inline-block overflow-hidden align-top h-[1.25em]">
           <span
-            className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none ${
+            className={`block text-[#E8590C] transition-all duration-700 ease-in-out transform motion-reduce:transition-none motion-reduce:transform-none drop-shadow-[0_4px_16px_rgba(232,89,12,0.5)] ${
               isAnimating
                 ? '-translate-y-full opacity-0'
                 : 'translate-y-0 opacity-100'
@@ -480,7 +514,7 @@ Sent from: Swanlake Machinery Website
       <div className="flex flex-col sm:flex-row gap-6 mt-12">
         <a
           href={SITE_CONTENT.hero.ctaPrimary.href}
-          className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-colors duration-300 ${focusRing}`}
+          className={`w-full sm:w-auto text-center py-6 px-10 bg-[#E8590C] text-[#14171B] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#FF7A29] transition-all duration-300 shadow-[0_0_35px_rgba(232,89,12,0.4)] hover:shadow-[0_0_50px_rgba(232,89,12,0.7)] ${focusRing}`}
           style={{ clipPath: 'polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)' }}
         >
           {SITE_CONTENT.hero.ctaPrimary.label}
@@ -651,7 +685,7 @@ Sent from: Swanlake Machinery Website
                       <button
                         onClick={() => setSelectedService(item)}
                         className={`w-full py-5 border text-[#E8590C] font-black uppercase text-base sm:text-lg tracking-wider hover:bg-[#E8590C] hover:text-[#14171B] hover:border-[#E8590C] transition-colors duration-300 text-center ${focusRing} ${
-                          theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                          theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
                         }`}
                       >
                         Express Interest
@@ -701,7 +735,7 @@ Sent from: Swanlake Machinery Website
                       activeFilter === category
                         ? 'bg-[#E8590C] text-[#14171B] border-[#E8590C]'
                         : theme === 'dark'
-                        ? 'bg-[#14171B] text-[#9CA3AC] border-[#242A31] hover:border-[#333B44]'
+                        ? 'bg-[#1B1F24] text-[#9CA3AC] border-[#242A31] hover:border-[#333B44]'
                         : 'bg-white text-[#4B5158] border-[#C9C6BC] hover:border-[#9C9890]'
                     }`}
                   >
@@ -716,7 +750,7 @@ Sent from: Swanlake Machinery Website
                     key={project.id}
                     style={staggerDelay(idx)}
                     className={`border overflow-hidden group transition-colors ${reveal(portfolioGridInView)} ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31] hover:border-[#333B44]' : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
+                      theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31] hover:border-[#333B44]' : 'bg-white border-[#C9C6BC] hover:border-[#9C9890] shadow-sm'
                     }`}
                   >
                     <div className="h-80 sm:h-72 overflow-hidden relative">
@@ -763,7 +797,7 @@ Sent from: Swanlake Machinery Website
 
           {/* Process Section */}
           <section id="process" className={`py-28 sm:py-36 border-t ${
-            theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+            theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
           }`}>
             <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
               <div className="text-center max-w-3xl mx-auto mb-20 sm:mb-24">
@@ -782,7 +816,7 @@ Sent from: Swanlake Machinery Website
                     <div key={idx} className="relative flex flex-col items-start">
                       <div
                         className={`relative z-10 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center font-['Barlow_Condensed',sans-serif] font-black text-2xl sm:text-3xl border-2 border-[#E8590C] text-[#E8590C] ${
-                          theme === 'dark' ? 'bg-[#14171B]' : 'bg-white'
+                          theme === 'dark' ? 'bg-[#1B1F24]' : 'bg-white'
                         }`}
                         style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)' }}
                       >
@@ -820,13 +854,13 @@ Sent from: Swanlake Machinery Website
 
                   <div className="mt-12 space-y-8 text-base">
                     <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                      theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
                     }`}>
                       <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Yard Address</span>
                       <span className={`font-bold text-lg sm:text-xl ${theme === 'dark' ? 'text-[#ECEDEF]' : 'text-[#14171B]'}`}>{SITE_CONTENT.company.address}</span>
                     </div>
                     <div className={`p-8 border ${
-                      theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                      theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
                     }`}>
                       <span className="text-[#6B7178] uppercase font-bold block text-sm tracking-wider mb-2">Email Inquiry</span>
                       <a href={`mailto:${SITE_CONTENT.company.email}`} className={`text-[#E8590C] font-bold text-lg sm:text-xl hover:underline rounded-sm ${focusRing}`}>
@@ -837,7 +871,7 @@ Sent from: Swanlake Machinery Website
                 </div>
 
                 <div className={`lg:col-span-7 p-8 sm:p-14 border shadow-2xl ${
-                  theme === 'dark' ? 'bg-[#14171B] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
+                  theme === 'dark' ? 'bg-[#1B1F24] border-[#242A31]' : 'bg-white border-[#C9C6BC]'
                 }`}>
                   {contactSubmitted ? (
                     <div className="p-12 bg-[#3D9A5C]/10 border border-[#3D9A5C]/30 text-[#3D9A5C] text-lg sm:text-xl font-bold text-center space-y-6">
@@ -1004,7 +1038,7 @@ Sent from: Swanlake Machinery Website
                   </div>
                   <div>
                     <span className="block text-sm text-[#6B7178] uppercase font-bold">24/7 Support</span>
-                    <span className="text-[#B7BCC3] font-bold">+234 (0) 800-MACHINERY</span>
+                    <span className="text-[#B7BCC3] font-bold">+234 810 870 2781</span>
                   </div>
                 </div>
               </div>
